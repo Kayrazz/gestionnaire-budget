@@ -1,0 +1,48 @@
+{
+    "transactions": [
+        {
+            "id": 1,
+            "date": "2024-06-01T12:00:00Z",
+            "amount": -100.0,
+            "nom": "Carglass",
+            "description": "Pare brique péter",
+            "categories": [3],
+            "status": "",
+            "link": [4],
+            "user_id": 1
+        },
+        {
+            "id":2,
+            "date": "2024-06-02T12:00:00Z",
+            "amount": -50.0,
+            "nom": "Carrfour",
+            "description": "Grocery shopping",
+            "categories": [1],
+            "status": "",
+            "link": [],
+            "user_id": 1
+        },
+        {
+            "id": 3,
+            "date": "2024-06-03T12:00:00Z",
+            "amount":200.0,
+            "nom": "Salaire",
+            "description": "Salaire mensuel d'esclave",
+            "categories": [2],
+            "status": "",
+            "link": [],
+            "user_id": 1
+        },
+        {
+            "id": 4,
+            "date": "2024-06-04T12:00:00Z",
+            "amount": 50.0,
+            "nom": "Remboursement de la mama",
+            "description": "Remboursement de la mama pour pare brique péter",
+            "categories": [],
+            "status": "",
+            "link": [1],
+            "user_id": 1
+        }
+    ]
+}

@@ -1,0 +1,24 @@
+{
+    "categories": [
+        {
+            "id": 1,
+            "name": "Nourriture",
+            "description": "Dépenses liées à l'alimentation"
+        },
+        {
+            "id": 2,
+            "name": "Revenus",
+            "description": "Sources de revenus"
+        },
+        {
+            "id": 3,
+            "name": "Transport",
+            "description": "Dépenses liées au transport"
+        },
+        {
+            "id": 4,
+            "name": "Loisirs",
+            "description": "Dépenses liées aux loisirs et divertissements"
+        }
+    ]
+}
