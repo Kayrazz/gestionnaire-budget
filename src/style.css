@@ -1,0 +1,27 @@
+@import "tailwindcss";
+
+*,
+html {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+#app {
+  background-color: whitesmoke;
+  height: 100vh;
+}
+
+.sidebar {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 250px;
+  height: 100vh;
+  background-color: antiquewhite;
+}
+
+.main {
+  margin-left: 250px;
+  padding: 20px;
+}
