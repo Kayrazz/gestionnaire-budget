@@ -1,5 +1,10 @@
 <script setup lang="ts">
-
+fetch('/transaction.json')
+    .then(response => response.json())
+    .then(data => {
+        // Utilise les données ici
+        console.log(data);
+    });
 </script>
 
 <template>
