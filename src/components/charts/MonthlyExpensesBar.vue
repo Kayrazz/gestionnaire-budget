@@ -72,7 +72,12 @@ function updateChart() {
                 label: {
                     show: true,
                     position: 'top',
-                    formatter: '{c} €',
+                    formatter: function (params: any) {
+                        // Affiche max 2 chiffres après la virgule, sans trailing zeros inutiles
+                        let val = Number(params.value);
+                        let str = val % 1 === 0 ? val.toString() : val.toFixed(2).replace(/\.00$/, '').replace(/(\.[0-9]*[1-9])0+$/, '$1');
+                        return str + ' €';
+                    },
                     fontWeight: 'bold',
                 }
             }
