@@ -14,6 +14,18 @@ const router = useRouter();
 
 
 function logout() {
+  // Sauvegarder le thème avant de nettoyer le localStorage
+  const THEME_STORAGE_KEY = "budget-manager:theme";
+  const currentTheme = localStorage.getItem(THEME_STORAGE_KEY);
+  
+  // Supprimer toutes les données du localStorage
+  localStorage.clear();
+  
+  // Restaurer le thème
+  if (currentTheme) {
+    localStorage.setItem(THEME_STORAGE_KEY, currentTheme);
+  }
+  
   document.cookie = 'user_id=; Max-Age=0; path=/;';
   router.push('/login');
 }

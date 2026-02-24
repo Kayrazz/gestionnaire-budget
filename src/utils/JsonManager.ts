@@ -54,6 +54,7 @@ export class JsonManager<TItem extends EntityWithId, TCollectionKey extends stri
     private readonly idGenerator: (items: TItem[]) => number;
     private items: TItem[] = [];
     private initialized = false;
+    private currentUserId: number | null = null;
 
     public constructor(options: JsonManagerOptions<TItem, TCollectionKey>) {
         this.sourcePath = options.sourcePath;
@@ -65,11 +66,18 @@ export class JsonManager<TItem extends EntityWithId, TCollectionKey extends stri
     /**
      * Initialise le gestionnaire en chargeant les données persistées localement,
      * ou à défaut les données du fichier JSON source.
+     *
+     * Si userId est fourni, les données sont filtrées par utilisateur:
+     * - Transactions: filtrées par user_id
+     * - Catégories: filtrées par userId
+     * - Utilisateurs: non filtrés (tous les utilisateurs restent accessibles)
      */
-    public async init(forceReload = false): Promise<void> {
+    public async init(userId?: number, forceReload = false): Promise<void> {
         if (this.initialized && !forceReload) {
             return;
         }
+
+        this.currentUserId = userId ?? null;
 
         const storedItems = this.readFromLocalStorage();
         if (storedItems !== null && !forceReload) {
@@ -79,6 +87,7 @@ export class JsonManager<TItem extends EntityWithId, TCollectionKey extends stri
         }
 
         this.items = await this.readFromSource();
+        this.items = this.filterByUser(this.items);
         this.writeToLocalStorage();
         this.initialized = true;
     }
@@ -238,11 +247,50 @@ export class JsonManager<TItem extends EntityWithId, TCollectionKey extends stri
     private clone<TData>(value: TData): TData {
         return JSON.parse(JSON.stringify(value)) as TData;
     }
+
+    private filterByUser(items: TItem[]): TItem[] {
+        if (!this.currentUserId) {
+            return items;
+        }
+
+        // Filtrer les transactions par user_id
+        const isTransaction = (item: unknown): item is Transaction => {
+            const maybeTransaction = item as Record<string, unknown>;
+            return "user_id" in maybeTransaction && typeof maybeTransaction.user_id === "number";
+        };
+
+        // Filtrer les catégories par userId
+        const isCategory = (item: unknown): item is Category => {
+            const maybeCategory = item as Record<string, unknown>;
+            return "name" in maybeCategory && "description" in maybeCategory;
+        };
+
+        // Filtrer les utilisateurs par id
+        const isUser = (item: unknown): item is User => {
+            const maybeUser = item as Record<string, unknown>;
+            return "email" in maybeUser && "password" in maybeUser && "created_at" in maybeUser;
+        };
+
+        return items.filter((item) => {
+            if (isTransaction(item)) {
+                return item.user_id === this.currentUserId;
+            }
+            if (isCategory(item)) {
+                return item.userId === undefined || item.userId === this.currentUserId;
+            }
+            if (isUser(item)) {
+                return item.id === this.currentUserId;
+            }
+            // Par défaut, ne pas filtrer
+            return true;
+        }) as TItem[];
+    }
 }
 
 export interface Category extends EntityWithId {
     name: string;
     description: string;
+    userId: number;
 }
 
 export interface Transaction extends EntityWithId {

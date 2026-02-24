@@ -46,10 +46,9 @@ const loadCategories = async (): Promise<void> => {
     errorMessage.value = "";
 
     try {
-        await categoriesManager.init();
-
         const userIdCookie = getCookie("user_id");
         const parsedUserId = userIdCookie ? Number.parseInt(userIdCookie, 10) : Number.NaN;
+        await categoriesManager.init(parsedUserId);
 
         if (!Number.isInteger(parsedUserId) || parsedUserId <= 0) {
             connectedUserId.value = null;
@@ -105,6 +104,7 @@ const submitForm = (): void => {
         categoriesManager.update(editingCategoryId.value, {
             name,
             description,
+            userId: connectedUserId.value,
         });
     }
 
@@ -115,7 +115,7 @@ const submitForm = (): void => {
 /**
  * Prépare le formulaire avec les données d'une catégorie existante.
  */
-const startEdit = (category: Category): void => {
+const startEdit = (category: CategoryWithUser): void => {
     editingCategoryId.value = category.id;
     formState.name = category.name;
     formState.description = category.description;
