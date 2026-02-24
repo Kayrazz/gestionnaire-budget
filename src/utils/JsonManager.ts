@@ -8,6 +8,8 @@ export interface EntityWithId {
     id: number;
 }
 
+export type CurrencyCode = "EUR" | "USD" | "GBP" | "JPY" | "CHF";
+
 /**
  * Forme attendue d'un document JSON de collection.
  *
@@ -290,6 +292,7 @@ export class JsonManager<TItem extends EntityWithId, TCollectionKey extends stri
 export interface Category extends EntityWithId {
     name: string;
     description: string;
+    budget: number;
     userId: number;
 }
 
@@ -312,6 +315,7 @@ export interface User extends EntityWithId {
     first_name: string;
     last_name: string;
     ammount: number;
+    currency?: CurrencyCode;
 }
 
 export const categoriesManager = new JsonManager<Category, "categories">({

@@ -3,7 +3,7 @@ import { computed, onMounted, onUnmounted, reactive, ref } from "vue";
 import { useRouter } from "vue-router";
 import AppButton from "../components/AppButton.vue";
 import getCookie from "../utils/getCookies";
-import { usersManager, type User } from "../utils/JsonManager";
+import { usersManager, type CurrencyCode, type User } from "../utils/JsonManager";
 
 /**
  * Durée d'attente avant d'autoriser la confirmation de suppression.
@@ -30,6 +30,18 @@ const successMessage = ref<string>("");
 
 const router = useRouter();
 
+const currencyOptions: Array<{ code: CurrencyCode; label: string }> = [
+    { code: "EUR", label: "Euro (€)" },
+    { code: "USD", label: "Dollar US ($)" },
+    { code: "GBP", label: "Livre sterling (£)" },
+    { code: "JPY", label: "Yen (¥)" },
+    { code: "CHF", label: "Franc suisse (CHF)" },
+];
+
+const isCurrencyCode = (value: string): value is CurrencyCode => {
+    return currencyOptions.some((option) => option.code === value);
+};
+
 /**
  * Identifiant de l'utilisateur connecté.
  */
@@ -46,6 +58,7 @@ const formState = reactive({
     first_name: "",
     last_name: "",
     ammount: 0,
+    currency: "EUR" as CurrencyCode,
 });
 
 /**
@@ -191,6 +204,7 @@ const syncFormWithSelection = (): void => {
         formState.first_name = "";
         formState.last_name = "";
         formState.ammount = 0;
+        formState.currency = "EUR";
         return;
     }
 
@@ -207,6 +221,7 @@ const syncFormWithSelection = (): void => {
     formState.first_name = user.first_name;
     formState.last_name = user.last_name;
     formState.ammount = user.ammount;
+    formState.currency = user.currency && isCurrencyCode(user.currency) ? user.currency : "EUR";
 };
 
 /**
@@ -226,6 +241,7 @@ const saveUser = (): void => {
         first_name: formState.first_name.trim(),
         last_name: formState.last_name.trim(),
         ammount: Number(formState.ammount),
+        currency: formState.currency,
     };
 
     if (!payload.name || !payload.email) {
@@ -502,6 +518,19 @@ onUnmounted(() => {
                             class="rounded border px-3 py-2"
                             :disabled="!hasSelectedUser"
                         />
+                    </label>
+
+                    <label class="flex flex-col gap-1 md:col-span-2">
+                        <span class="text-sm">Devise</span>
+                        <select
+                            v-model="formState.currency"
+                            class="rounded border px-3 py-2"
+                            :disabled="!hasSelectedUser"
+                        >
+                            <option v-for="option in currencyOptions" :key="option.code" :value="option.code">
+                                {{ option.label }}
+                            </option>
+                        </select>
                     </label>
                 </div>
 

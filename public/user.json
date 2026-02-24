@@ -8,7 +8,8 @@
             "created_at": "2024-06-01T12:00:00Z",
             "first_name": "John",
             "last_name": "Doe",
-            "ammount": 1000
+            "ammount": 1000,
+            "currency": "EUR"
         },
         {
             "id": 2,
@@ -18,7 +19,8 @@
             "created_at": "2024-06-01T12:00:00Z",
             "first_name": "Jane",
             "last_name": "Smith",
-            "ammount": 1200
+            "ammount": 1200,
+            "currency": "EUR"
         }
     ]
 }

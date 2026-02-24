@@ -4,7 +4,7 @@ import { computed } from "vue";
 /**
  * Variantes visuelles disponibles pour le bouton.
  */
-type ButtonVariant = "default" | "danger";
+type ButtonVariant = "default" | "danger" | "surface";
 
 /**
  * Tailles disponibles pour ajuster l'espacement du bouton.
@@ -29,7 +29,9 @@ const buttonClass = computed<string>(() => {
     const variantClass =
         props.variant === "danger"
             ? "border-red-500 text-red-600 hover:bg-red-200 focus:ring-red-500"
-            : "border-gray-300 text-[var(--color-text)] hover:bg-gray-400 focus:ring-gray-500";
+            : props.variant === "surface"
+              ? "border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text)] hover:bg-[var(--hover-bg)] focus:ring-[var(--primary-color)]"
+              : "border-gray-300 text-[var(--color-text)] hover:bg-gray-400 focus:ring-gray-500";
 
     const sizeClass = props.size === "sm" ? "px-3 py-1 text-sm" : "px-4 py-2";
 
