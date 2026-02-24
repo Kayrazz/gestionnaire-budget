@@ -150,11 +150,11 @@ const loadUsers = async (): Promise<void> => {
     errorMessage.value = "";
 
     try {
-        await usersManager.init();
-        users.value = usersManager.getAll();
-
         const userIdCookie = getCookie("user_id");
         const parsedUserId = userIdCookie ? Number.parseInt(userIdCookie, 10) : Number.NaN;
+        await usersManager.init(parsedUserId);
+        users.value = usersManager.getAll();
+
 
         if (!Number.isInteger(parsedUserId) || parsedUserId <= 0) {
             connectedUserId.value = null;
@@ -317,6 +317,17 @@ const confirmDeleteUser = (): void => {
         errorMessage.value = "La suppression a échoué: utilisateur introuvable.";
         closeDeletePopover();
         return;
+    }
+
+    // Sauvegarder le thème avant de nettoyer le localStorage
+    const currentTheme = localStorage.getItem(THEME_STORAGE_KEY);
+    
+    // Supprimer toutes les données du localStorage
+    localStorage.clear();
+    
+    // Restaurer le thème
+    if (currentTheme) {
+        localStorage.setItem(THEME_STORAGE_KEY, currentTheme);
     }
 
     users.value = usersManager.getAll();
