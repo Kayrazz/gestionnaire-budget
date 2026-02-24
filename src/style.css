@@ -1,16 +1,52 @@
 @import "tailwindcss";
 
 :root {
+  /* Tokens globaux */
+  --color-bg: #f5f5f5;
+  --color-surface: #ffffff;
+  --color-text: #111827;
+  --color-border: #d1d5db;
+
   --primary-color: #220a7b;
   --secondary-color: #fbbf24;
-
   --hover-primary-color: #2500b7;
 }
 
-.theme {
+/* Thème blanc */
+:root[data-theme="white"] {
+  --color-bg: #f5f5f5;
+  --color-surface: #ffffff;
+  --color-text: #111827;
+  --color-border: #d1d5db;
+
   --primary-color: #220a7b;
+  --secondary-color: #fbbf24;
+  --hover-primary-color: #2500b7;
 }
 
+/* Thème noir */
+:root[data-theme="black"] {
+  --color-bg: #0b0b0f;
+  --color-surface: #15151c;
+  --color-text: #f3f4f6;
+  --color-border: #2c2c38;
+
+  --primary-color: #7c3aed;
+  --secondary-color: #fbbf24;
+  --hover-primary-color: #8b5cf6;
+}
+
+/* Thème purple */
+:root[data-theme="purple"] {
+  --color-bg: #1a1033;
+  --color-surface: #221244;
+  --color-text: #f5f3ff;
+  --color-border: #3b2c68;
+
+  --primary-color: #a855f7;
+  --secondary-color: #fbbf24;
+  --hover-primary-color: #c084fc;
+}
 
 @layer base {
 
@@ -19,6 +55,21 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+  }
+
+  html,
+  body,
+  #app {
+    background-color: var(--color-bg);
+    color: var(--color-text);
+  }
+
+  input,
+  select,
+  textarea {
+    background-color: var(--color-surface);
+    color: var(--color-text);
+    border-color: var(--color-border);
   }
 }
 

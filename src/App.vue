@@ -2,6 +2,7 @@
 import Header from './components/Header.vue';
 import { ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import getCookie from './utils/getCookies';
 
 const menuOpen = ref(false);
 function toggleMenu() {
@@ -11,17 +12,6 @@ function toggleMenu() {
 const route = useRoute();
 const router = useRouter();
 
-function getCookie(name: string): string | null {
-  const value = `; ${document.cookie}`;
-  const parts = value.split(`; ${name}=`);
-  if (parts.length === 2) {
-    const last = parts.pop();
-    if (last) {
-      return last.split(';').shift() ?? null;
-    }
-  }
-  return null;
-}
 
 function logout() {
   document.cookie = 'user_id=; Max-Age=0; path=/;';

@@ -2,15 +2,21 @@
 import { computed, onMounted, reactive, ref } from "vue";
 import AppButton from "../components/AppButton.vue";
 import { categoriesManager, type Category } from "../utils/JsonManager";
+import getCookie from "../utils/getCookies";
+
+type CategoryWithUser = Category & {
+    userId: number;
+};
 
 /**
  * État principal de la vue.
  *
  * Les données sont chargées depuis le JsonManager puis affichées dans la liste.
  */
-const categories = ref<Category[]>([]);
+const categories = ref<CategoryWithUser[]>([]);
 const loading = ref<boolean>(true);
 const errorMessage = ref<string>("");
+const connectedUserId = ref<number | null>(null);
 
 /**
  * État du formulaire pour la création et la modification.
@@ -23,6 +29,14 @@ const formState = reactive({
 const editingCategoryId = ref<number | null>(null);
 
 const isEditing = computed<boolean>(() => editingCategoryId.value !== null);
+const hasConnectedUser = computed<boolean>(() => connectedUserId.value !== null);
+
+const refreshCategoriesForConnectedUser = (): void => {
+    const allCategories = categoriesManager.getAll() as CategoryWithUser[];
+    categories.value = connectedUserId.value === null
+        ? []
+        : allCategories.filter((category) => category.userId === connectedUserId.value);
+};
 
 /**
  * Charge les catégories depuis la source du manager.
@@ -33,7 +47,19 @@ const loadCategories = async (): Promise<void> => {
 
     try {
         await categoriesManager.init();
-        categories.value = categoriesManager.getAll();
+
+        const userIdCookie = getCookie("user_id");
+        const parsedUserId = userIdCookie ? Number.parseInt(userIdCookie, 10) : Number.NaN;
+
+        if (!Number.isInteger(parsedUserId) || parsedUserId <= 0) {
+            connectedUserId.value = null;
+            categories.value = [];
+            errorMessage.value = "Aucun utilisateur connecté. Veuillez vous reconnecter.";
+            return;
+        }
+
+        connectedUserId.value = parsedUserId;
+        refreshCategoriesForConnectedUser();
     } catch (error) {
         errorMessage.value = error instanceof Error ? error.message : "Erreur inattendue pendant le chargement des catégories.";
     } finally {
@@ -54,6 +80,11 @@ const resetForm = (): void => {
  * Crée une catégorie ou met à jour la catégorie en cours d'édition.
  */
 const submitForm = (): void => {
+    if (connectedUserId.value === null) {
+        errorMessage.value = "Aucun utilisateur connecté.";
+        return;
+    }
+
     const name = formState.name.trim();
     const description = formState.description.trim();
 
@@ -68,7 +99,8 @@ const submitForm = (): void => {
         categoriesManager.create({
             name,
             description,
-        });
+            userId: connectedUserId.value,
+        } as Omit<CategoryWithUser, "id">);
     } else {
         categoriesManager.update(editingCategoryId.value, {
             name,
@@ -76,7 +108,7 @@ const submitForm = (): void => {
         });
     }
 
-    categories.value = categoriesManager.getAll();
+    refreshCategoriesForConnectedUser();
     resetForm();
 };
 
@@ -94,7 +126,7 @@ const startEdit = (category: Category): void => {
  */
 const removeCategory = (id: number): void => {
     categoriesManager.delete(id);
-    categories.value = categoriesManager.getAll();
+    refreshCategoriesForConnectedUser();
 
     if (editingCategoryId.value === id) {
         resetForm();
@@ -141,7 +173,7 @@ onMounted(async () => {
                 <AppButton type="submit">
                     {{ isEditing ? "Mettre à jour" : "Créer" }}
                 </AppButton>
-                <AppButton type="button" @click="resetForm">
+                <AppButton type="button" :disabled="!hasConnectedUser" @click="resetForm">
                     Annuler
                 </AppButton>
             </div>
