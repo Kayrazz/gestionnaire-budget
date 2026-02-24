@@ -106,19 +106,19 @@ const toastClass = computed(() => {
 
 .toast-success {
     border-color: var(--success-color);
-    background: var(--success-bg);
+    background: color-mix(in srgb, var(--success-color) 18%, var(--color-surface));
     color: var(--success-color);
 }
 
 .toast-info {
     border-color: var(--primary-color);
-    background: var(--link-bg-light);
+    background: color-mix(in srgb, var(--primary-color) 16%, var(--color-surface));
     color: var(--primary-color);
 }
 
 .toast-alert {
     border-color: var(--danger-color);
-    background: var(--danger-bg);
+    background: color-mix(in srgb, var(--danger-color) 18%, var(--color-surface));
     color: var(--danger-color);
 }
 
