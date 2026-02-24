@@ -51,7 +51,7 @@ async function handleSubmit(e: Event) {
 }
 </script>
 <template>
-    <div class="min-h-screen flex items-center justify-center bg-[var(--color-surface)]">
+    <div class="login min-h-screen flex items-center justify-center bg-[var(--color-surface)]">
         <form class="p-8 rounded shadow-md w-full max-w-sm space-y-6 bg-[var(--color-bg)]" @submit="handleSubmit">
             <h2 class="text-2xl font-bold text-center mb-4 text-[var(--color-text)]">Connexion</h2>
             <div v-if="errorMsg" class="text-red-500 text-center">{{ errorMsg }}</div>

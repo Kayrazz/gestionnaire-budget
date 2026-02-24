@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import BudgetPieChart from '../components/BudgetByCategoryPieChart.vue';
-import CategoryBudgetPie from '../components/CategoryBudgetPie.vue';
-import MonthlyExpensesBar from '../components/MonthlyExpensesBar.vue';
+import BudgetPieChart from '../components/charts/BudgetByCategoryPieChart.vue';
+import CategoryBudgetPie from '../components/charts/CategoryBudgetPie.vue';
+import MonthlyExpensesBar from '../components/charts/MonthlyExpensesBar.vue';
 
 const selectedDate = ref('2026-02');
 const transactions = ref<any[]>([]);

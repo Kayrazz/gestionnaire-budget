@@ -50,8 +50,8 @@ watch(() => route.path, checkAuth);
   <template v-if="route.path !== '/login'">
     <!-- Sidebar (header) -->
     <!-- Burger button for mobile -->
-    <button class="md:hidden fixed top-4 left-4 z-50 p-2 rounded bg-[var(--color-bg)] focus:outline-none" @click="toggleMenu"
-      aria-label="Ouvrir le menu">
+    <button class="md:hidden fixed top-4 left-4 z-50 p-2 rounded bg-[var(--color-bg)] focus:outline-none"
+      @click="toggleMenu" aria-label="Ouvrir le menu">
       <span class="block w-6 h-0.5 bg-[var(--color-text)] mb-1"></span>
       <span class="block w-6 h-0.5 bg-[var(--color-text)] mb-1"></span>
       <span class="block w-6 h-0.5 bg-[var(--color-text)]"></span>
@@ -76,6 +76,10 @@ watch(() => route.path, checkAuth);
       <Header />
       <RouterView />
     </main>
+  </template>
+  
+  <template v-else>
+    <RouterView />
   </template>
 
 </template>
