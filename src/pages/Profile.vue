@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, reactive, ref, watch } from "vue";
+import { computed, onMounted, onUnmounted, reactive, ref } from "vue";
+import { useRouter } from "vue-router";
 import AppButton from "../components/AppButton.vue";
+import getCookie from "../utils/getCookies";
 import { usersManager, type User } from "../utils/JsonManager";
 
 /**
@@ -26,13 +28,12 @@ const saving = ref<boolean>(false);
 const errorMessage = ref<string>("");
 const successMessage = ref<string>("");
 
+const router = useRouter();
+
 /**
- * Identifiant de l'utilisateur actuellement sélectionné.
- *
- * Tant que l'authentification n'est pas implémentée,
- * cet identifiant est fourni via un sélecteur manuel.
+ * Identifiant de l'utilisateur connecté.
  */
-const selectedUserId = ref<number | null>(null);
+const connectedUserId = ref<number | null>(null);
 
 /**
  * État du formulaire profil.
@@ -59,7 +60,7 @@ const showDeletePopover = ref<boolean>(false);
 const deleteCountdownRemainingMs = ref<number>(DELETE_CONFIRM_DELAY_MS);
 let deleteTimer: ReturnType<typeof setInterval> | null = null;
 
-const hasSelectedUser = computed<boolean>(() => selectedUserId.value !== null);
+const hasSelectedUser = computed<boolean>(() => connectedUserId.value !== null);
 
 const canConfirmDelete = computed<boolean>(() => deleteCountdownRemainingMs.value <= 0);
 
@@ -69,11 +70,11 @@ const deleteProgressPercent = computed<number>(() => {
 });
 
 const selectedUserLabel = computed<string>(() => {
-    if (selectedUserId.value === null) {
+    if (connectedUserId.value === null) {
         return "aucun utilisateur";
     }
 
-    const user = users.value.find((item) => item.id === selectedUserId.value);
+    const user = users.value.find((item) => item.id === connectedUserId.value);
     return user ? `${user.first_name} ${user.last_name}`.trim() || user.name : "utilisateur introuvable";
 });
 
@@ -152,8 +153,23 @@ const loadUsers = async (): Promise<void> => {
         await usersManager.init();
         users.value = usersManager.getAll();
 
-        const firstUser = users.value[0];
-        selectedUserId.value = firstUser ? firstUser.id : null;
+        const userIdCookie = getCookie("user_id");
+        const parsedUserId = userIdCookie ? Number.parseInt(userIdCookie, 10) : Number.NaN;
+
+        if (!Number.isInteger(parsedUserId) || parsedUserId <= 0) {
+            connectedUserId.value = null;
+            errorMessage.value = "Aucun utilisateur connecté. Veuillez vous reconnecter.";
+            return;
+        }
+
+        const connectedUser = users.value.find((item) => item.id === parsedUserId);
+        if (!connectedUser) {
+            connectedUserId.value = null;
+            errorMessage.value = "Utilisateur connecté introuvable. Veuillez vous reconnecter.";
+            return;
+        }
+
+        connectedUserId.value = connectedUser.id;
     } catch (error) {
         errorMessage.value = error instanceof Error ? error.message : "Erreur inattendue pendant le chargement des utilisateurs.";
     } finally {
@@ -167,17 +183,18 @@ const loadUsers = async (): Promise<void> => {
 const syncFormWithSelection = (): void => {
     successMessage.value = "";
 
-    if (selectedUserId.value === null) {
+    if (connectedUserId.value === null) {
         formState.name = "";
         formState.email = "";
         formState.password = "";
+        formState.created_at = "";
         formState.first_name = "";
         formState.last_name = "";
         formState.ammount = 0;
         return;
     }
 
-    const user = users.value.find((item) => item.id === selectedUserId.value);
+    const user = users.value.find((item) => item.id === connectedUserId.value);
     if (!user) {
         errorMessage.value = "L'utilisateur sélectionné est introuvable.";
         return;
@@ -196,8 +213,8 @@ const syncFormWithSelection = (): void => {
  * Sauvegarde les modifications de l'utilisateur courant.
  */
 const saveUser = (): void => {
-    if (selectedUserId.value === null) {
-        errorMessage.value = "Sélectionnez un utilisateur avant de sauvegarder.";
+    if (connectedUserId.value === null) {
+        errorMessage.value = "Aucun utilisateur connecté.";
         return;
     }
 
@@ -219,7 +236,7 @@ const saveUser = (): void => {
     saving.value = true;
     errorMessage.value = "";
 
-    const updated = usersManager.update(selectedUserId.value, payload);
+    const updated = usersManager.update(connectedUserId.value, payload);
     if (!updated) {
         errorMessage.value = "Impossible de sauvegarder: utilisateur introuvable.";
         saving.value = false;
@@ -242,8 +259,8 @@ const togglePasswordVisibility = (): void => {
  * Ouvre la fenêtre de validation de suppression et démarre le compteur de sécurité.
  */
 const openDeletePopover = (): void => {
-    if (selectedUserId.value === null) {
-        errorMessage.value = "Sélectionnez un utilisateur avant de lancer la suppression.";
+    if (connectedUserId.value === null) {
+        errorMessage.value = "Aucun utilisateur connecté.";
         return;
     }
 
@@ -291,11 +308,11 @@ const stopDeleteCountdown = (): void => {
  * Confirme la suppression de l'utilisateur sélectionné.
  */
 const confirmDeleteUser = (): void => {
-    if (selectedUserId.value === null || !canConfirmDelete.value) {
+    if (connectedUserId.value === null || !canConfirmDelete.value) {
         return;
     }
 
-    const deleted = usersManager.delete(selectedUserId.value);
+    const deleted = usersManager.delete(connectedUserId.value);
     if (!deleted) {
         errorMessage.value = "La suppression a échoué: utilisateur introuvable.";
         closeDeletePopover();
@@ -303,19 +320,15 @@ const confirmDeleteUser = (): void => {
     }
 
     users.value = usersManager.getAll();
-    const firstUser = users.value[0];
-    selectedUserId.value = firstUser ? firstUser.id : null;
+    connectedUserId.value = null;
     syncFormWithSelection();
+    document.cookie = "user_id=; Max-Age=0; path=/;";
 
     successMessage.value = "Utilisateur supprimé.";
     errorMessage.value = "";
     closeDeletePopover();
+    router.push("/login");
 };
-
-watch(selectedUserId, () => {
-    errorMessage.value = "";
-    syncFormWithSelection();
-});
 
 onMounted(async () => {
     await loadUsers();
@@ -341,19 +354,6 @@ onUnmounted(() => {
         <div v-if="loading" class="text-sm">Chargement des utilisateurs...</div>
 
         <template v-else>
-            <label class="flex flex-col gap-1 max-w-md">
-                <span class="text-sm">Utilisateur actif</span>
-                <select
-                    v-model.number="selectedUserId"
-                    class="rounded border px-3 py-2"
-                    :disabled="users.length === 0"
-                >
-                    <option v-if="users.length === 0" :value="null">Aucun utilisateur disponible</option>
-                    <option v-for="user in users" :key="user.id" :value="user.id">
-                        #{{ user.id }} - {{ user.first_name }} {{ user.last_name }}
-                    </option>
-                </select>
-            </label>
 
             <form class="space-y-3" @submit.prevent="saveUser">
                 <div class="grid gap-3 md:grid-cols-2">

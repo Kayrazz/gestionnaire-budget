@@ -1,32 +1,52 @@
 <script setup lang="ts">
 import { ref, watch, onMounted } from 'vue';
+import getCookie from '../utils/getCookies';
+import { usersManager } from '../utils/JsonManager';
 
 const username = ref<string>('');
 const ammount = ref<number>(0);
 const showAmount = ref<boolean>(true);
 
+const loadConnectedUser = async (): Promise<void> => {
+    await usersManager.init();
+
+    const userIdCookie = getCookie('user_id');
+    const parsedUserId = userIdCookie ? Number.parseInt(userIdCookie, 10) : Number.NaN;
+
+    if (!Number.isInteger(parsedUserId) || parsedUserId <= 0) {
+        username.value = 'Utilisateur non connecté';
+        ammount.value = 0;
+        return;
+    }
+
+    const user = usersManager.getById(parsedUserId);
+
+    if (!user) {
+        username.value = 'Utilisateur introuvable';
+        ammount.value = 0;
+        return;
+    }
+
+    username.value = `${user.first_name} ${user.last_name}`.trim() || user.name;
+    ammount.value = user.ammount;
+};
+
 onMounted(() => {
-    const cookieValue = document.cookie.split('; ').find(row => row.startsWith('showAmount='));
+    const cookieValue = document.cookie.split('; ').find((row) => row.startsWith('showAmount='));
     if (cookieValue) {
         showAmount.value = cookieValue.split('=')[1] === 'true';
     }
+
+    loadConnectedUser().catch((error: unknown) => {
+        console.error('Error loading connected user:', error);
+        username.value = 'Erreur utilisateur';
+        ammount.value = 0;
+    });
 });
 
 watch(showAmount, (newValue) => {
-    document.cookie = `showAmount=${newValue}`;
-})
-
-
-fetch("/user.json")
-    .then((response) => response.json())
-    .then((data) => {
-        const user = data.users[0];
-        username.value = `${user.first_name} ${user.last_name}`;
-        ammount.value = user.ammount;
-    })
-    .catch((error) => {
-        console.error("Error fetching user data:", error);
-    });
+    document.cookie = `showAmount=${newValue}; path=/;`;
+});
 </script>
 
 <template>

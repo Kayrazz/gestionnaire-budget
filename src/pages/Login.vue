@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { categoriesManager, usersManager } from '../utils/JsonManager';
 
 const email = ref<string>('');
 const password = ref<string>('');
@@ -11,9 +12,13 @@ async function handleSubmit(e: Event) {
     e.preventDefault();
     errorMsg.value = '';
     try {
-        const response = await fetch('/user.json');
-        const data = await response.json();
-        const user = data.users.find((u: any) => u.email === email.value && u.password === password.value);
+        await usersManager.resetFromSource();
+        await categoriesManager.resetFromSource();
+
+        const user = usersManager
+            .getAll()
+            .find((u) => u.email === email.value && u.password === password.value);
+
         if (user) {
             // Stocker l'id utilisateur dans un cookie pour la session
             document.cookie = `user_id=${user.id}; path=/;`;
