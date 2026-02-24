@@ -23,6 +23,12 @@
             "name": "Loisirs",
             "description": "Dépenses liées aux loisirs et divertissements",
             "userId": 1
+        },
+        {
+            "id": 5,
+            "name": "Santé",
+            "description": "Dépenses liées à la santé",
+            "userId": 2
         }
     ]
 }
