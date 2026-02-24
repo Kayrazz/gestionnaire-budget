@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from "vue";
 import AppButton from "../components/AppButton.vue";
-import { categoriesManager, type Category } from "../utils/JsonManager";
+import { categoriesManager, usersManager, type Category, type CurrencyCode } from "../utils/JsonManager";
 import getCookie from "../utils/getCookies";
 
 type CategoryWithUser = Category & {
@@ -17,6 +17,11 @@ const categories = ref<CategoryWithUser[]>([]);
 const loading = ref<boolean>(true);
 const errorMessage = ref<string>("");
 const connectedUserId = ref<number | null>(null);
+const defaultCurrency = ref<CurrencyCode>("EUR");
+
+const isCurrencyCode = (value: string): value is CurrencyCode => {
+    return value === "EUR" || value === "USD" || value === "GBP" || value === "JPY" || value === "CHF";
+};
 
 /**
  * État du formulaire pour la création et la modification.
@@ -24,6 +29,7 @@ const connectedUserId = ref<number | null>(null);
 const formState = reactive({
     name: "",
     description: "",
+    budget: "",
 });
 
 const editingCategoryId = ref<number | null>(null);
@@ -57,6 +63,12 @@ const loadCategories = async (): Promise<void> => {
             return;
         }
 
+        await usersManager.init(parsedUserId);
+        const connectedUser = usersManager.getById(parsedUserId);
+        if (connectedUser?.currency && isCurrencyCode(connectedUser.currency)) {
+            defaultCurrency.value = connectedUser.currency;
+        }
+
         connectedUserId.value = parsedUserId;
         refreshCategoriesForConnectedUser();
     } catch (error) {
@@ -72,6 +84,7 @@ const loadCategories = async (): Promise<void> => {
 const resetForm = (): void => {
     formState.name = "";
     formState.description = "";
+    formState.budget = "";
     editingCategoryId.value = null;
 };
 
@@ -86,9 +99,15 @@ const submitForm = (): void => {
 
     const name = formState.name.trim();
     const description = formState.description.trim();
+    const budget = Number.parseFloat(formState.budget);
 
     if (!name) {
         errorMessage.value = "Le nom de la catégorie est obligatoire.";
+        return;
+    }
+
+    if (!Number.isFinite(budget) || budget < 0) {
+        errorMessage.value = "Le budget doit être un nombre supérieur ou égal à 0.";
         return;
     }
 
@@ -98,12 +117,14 @@ const submitForm = (): void => {
         categoriesManager.create({
             name,
             description,
+            budget,
             userId: connectedUserId.value,
         } as Omit<CategoryWithUser, "id">);
     } else {
         categoriesManager.update(editingCategoryId.value, {
             name,
             description,
+            budget,
             userId: connectedUserId.value,
         });
     }
@@ -119,6 +140,7 @@ const startEdit = (category: CategoryWithUser): void => {
     editingCategoryId.value = category.id;
     formState.name = category.name;
     formState.description = category.description;
+    formState.budget = category.budget.toString();
 };
 
 /**
@@ -139,15 +161,15 @@ onMounted(async () => {
 </script>
 
 <template>
-    <section class="p-6 space-y-6">
+    <section class="p-4 sm:p-6 space-y-6">
         <h1 class="text-2xl font-semibold">Gestion des catégories</h1>
 
-        <p v-if="errorMessage" class="text-sm text-red-600">
+        <p v-if="errorMessage" class="text-sm text-[var(--danger-color)]">
             {{ errorMessage }}
         </p>
 
         <form class="space-y-3" @submit.prevent="submitForm">
-            <div class="grid gap-3 md:grid-cols-2">
+            <div class="grid gap-3 grid-cols-1 md:grid-cols-2">
                 <label class="flex flex-col gap-1">
                     <span class="text-sm">Nom</span>
                     <input
@@ -167,13 +189,26 @@ onMounted(async () => {
                         placeholder="Description"
                     />
                 </label>
+
+                <label class="flex flex-col gap-1">
+                    <span class="text-sm">Budget ({{ defaultCurrency }})</span>
+                    <input
+                        v-model="formState.budget"
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        class="rounded border px-3 py-2"
+                        placeholder="Budget"
+                    />
+                </label>
+
             </div>
 
-            <div class="flex gap-2">
-                <AppButton type="submit">
+            <div class="flex flex-col sm:flex-row gap-2">
+                <AppButton type="submit" class="w-full sm:w-auto">
                     {{ isEditing ? "Mettre à jour" : "Créer" }}
                 </AppButton>
-                <AppButton type="button" :disabled="!hasConnectedUser" @click="resetForm">
+                <AppButton type="button" class="w-full sm:w-auto" :disabled="!hasConnectedUser" @click="resetForm">
                     Annuler
                 </AppButton>
             </div>
@@ -185,18 +220,19 @@ onMounted(async () => {
             <li
                 v-for="category in categories"
                 :key="category.id"
-                class="flex items-start justify-between rounded border p-3"
+                class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between rounded border border-[var(--color-border)] p-3"
             >
                 <div>
                     <p class="font-medium">{{ category.name }}</p>
-                    <p class="text-sm text-gray-600">{{ category.description }}</p>
+                    <p class="text-sm text-[var(--muted-text)]">{{ category.description }}</p>
+                    <p class="text-sm text-[var(--muted-text)]">Budget: {{ category.budget }} {{ defaultCurrency }}</p>
                 </div>
 
-                <div class="flex gap-2">
-                    <AppButton type="button" size="sm" @click="startEdit(category)">
+                <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                    <AppButton type="button" size="sm" class="w-full sm:w-auto" @click="startEdit(category)">
                         Modifier
                     </AppButton>
-                    <AppButton type="button" size="sm" variant="danger" @click="removeCategory(category.id)">
+                    <AppButton type="button" size="sm" class="w-full sm:w-auto" variant="danger" @click="removeCategory(category.id)">
                         Supprimer
                     </AppButton>
                 </div>
