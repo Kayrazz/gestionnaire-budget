@@ -24,7 +24,8 @@ function getCategories() {
 function updateChart() {
     if (!chartRef.value || !categories.value.length) return;
     if (!myChart) {
-        myChart = echarts.init(chartRef.value);
+        const theme = localStorage.getItem('budget-manager:theme') || 'light';
+        myChart = echarts.init(chartRef.value, theme === 'white' ? null : 'dark');
     }
     const option: EChartsOption = {
         title: {

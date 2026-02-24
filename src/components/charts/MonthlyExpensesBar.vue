@@ -35,7 +35,8 @@ function getMonthlyExpenses() {
 function updateChart() {
     if (!chartRef.value) return;
     if (!myChart) {
-        myChart = echarts.init(chartRef.value);
+        const theme = localStorage.getItem('budget-manager:theme') || 'light';
+        myChart = echarts.init(chartRef.value, theme === 'white' ? null : 'dark');
     }
     const { months, sums } = getMonthlyExpenses();
     const option = {
