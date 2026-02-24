@@ -3,8 +3,8 @@ Page login
 
 # Page Accueil
 Head avec montant pouvoir caché la somme via icone oeil
-Résumé des dépenses du mois en cours
 Graphique des dépenses par catégorie
+Résumé des dépenses du mois en cours
 Liste des transactions récentes
 
 
