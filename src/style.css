@@ -22,7 +22,12 @@
   }
 }
 
-#app {
+html,
+main  {
+  height: 100%;
+}
+
+body {
   background-color: whitesmoke;
-  height: 100vh;
+  height: 100%;
 }

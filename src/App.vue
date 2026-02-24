@@ -57,7 +57,7 @@ watch(() => route.path, checkAuth);
     <!-- Navigation -->
     <nav :class="[
       'bg-gray-300 z-40 text-sm',
-      'md:flex md:flex-col md:w-[150px] md:absolute md:h-screen md:left-0 md:top-0',
+      'md:flex md:flex-col md:w-[150px] md:h-screen md:left-0 md:top-0',
       'fixed top-0 left-0 w-full flex flex-col items-start p-2 gap-2',
       menuOpen ? 'block' : 'hidden',
       'md:block'
