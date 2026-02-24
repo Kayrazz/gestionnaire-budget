@@ -5,6 +5,7 @@ import type { Category, CurrencyCode, Transaction } from "../utils/JsonManager";
 import { categoriesManager, transactionsManager, usersManager } from "../utils/JsonManager";
 import { parseOfxTransactions } from "../utils/parseOfxTransactions";
 import AppButton from "../components/AppButton.vue";
+import AppToast from "../components/AppToast.vue";
 
 /**
  * État du formulaire d'édition/création
@@ -37,6 +38,8 @@ interface TransactionGroup {
     totalAmount: number;
 }
 
+type ToastType = "success" | "info" | "alert";
+
 /**
  * État initial du formulaire
  */
@@ -44,6 +47,19 @@ const defaultCurrency = ref<CurrencyCode>("EUR");
 const currentUserId = ref<number | null>(null);
 const ofxFileInput = ref<HTMLInputElement | null>(null);
 const isImportingOfx = ref(false);
+const toastVisible = ref(false);
+const toastMessage = ref("");
+const toastType = ref<ToastType>("info");
+
+const showToast = (message: string, type: ToastType = "info"): void => {
+    toastVisible.value = false;
+    toastMessage.value = message;
+    toastType.value = type;
+
+    requestAnimationFrame(() => {
+        toastVisible.value = true;
+    });
+};
 
 const createInitialFormState = (): FormState => ({
     id: null,
@@ -421,12 +437,12 @@ const handleTransactionRowClick = (transactionId: number): void => {
     const parentId = transactionId;
 
     if (childId === parentId) {
-        alert("Une transaction ne peut pas être son propre parent.");
+        showToast("Une transaction ne peut pas être son propre parent.", "alert");
         return;
     }
 
     if (wouldCreateCycle(childId, parentId)) {
-        alert("Ce lien créerait une boucle dans la hiérarchie.");
+        showToast("Ce lien créerait une boucle dans la hiérarchie.", "alert");
         return;
     }
 
@@ -528,24 +544,24 @@ const saveTransaction = (): void => {
     const userId = currentUserId.value;
 
     if (!userId) {
-        alert("Utilisateur non connecté. Veuillez vous reconnecter.");
+        showToast("Utilisateur non connecté. Veuillez vous reconnecter.", "alert");
         return;
     }
 
     const amount = Number(formState.value.amount);
 
     if (!formState.value.nom.trim()) {
-        alert("Le nom de la transaction est requis");
+        showToast("Le nom de la transaction est requis", "alert");
         return;
     }
 
     if (isNaN(amount)) {
-        alert("Le montant doit être un nombre valide");
+        showToast("Le montant doit être un nombre valide", "alert");
         return;
     }
 
     if (!formState.value.date) {
-        alert("La date est requise");
+        showToast("La date est requise", "alert");
         return;
     }
 
@@ -594,7 +610,7 @@ const openOfxFilePicker = (): void => {
 const importOfxFile = async (file: File): Promise<void> => {
     const userId = currentUserId.value;
     if (!userId) {
-        alert("Utilisateur non connecté. Veuillez vous reconnecter.");
+        showToast("Utilisateur non connecté. Veuillez vous reconnecter.", "alert");
         return;
     }
 
@@ -655,19 +671,20 @@ const importOfxFile = async (file: File): Promise<void> => {
         transactions.value = transactionsManager.getAll();
 
         if (importedCount === 0) {
-            alert("Aucune nouvelle transaction importée (doublons détectés).");
+            showToast("Aucune nouvelle transaction importée (doublons détectés).", "info");
             return;
         }
 
-        alert(
+        showToast(
             skippedCount > 0
                 ? `${importedCount} transaction(s) importée(s), ${skippedCount} doublon(s) ignoré(s).`
                 : `${importedCount} transaction(s) importée(s) avec succès.`,
+            "success",
         );
     } catch (error) {
         const fallbackMessage = "Erreur lors de l'import OFX.";
         const message = error instanceof Error ? error.message : fallbackMessage;
-        alert(message);
+        showToast(message, "alert");
     } finally {
         isImportingOfx.value = false;
     }
@@ -752,6 +769,12 @@ const cancelEdit = (): void => {
 
 <template>
     <div class="transactions">
+        <AppToast
+            v-model="toastVisible"
+            :message="toastMessage"
+            :type="toastType"
+        />
+
         <input
             ref="ofxFileInput"
             type="file"
@@ -1114,6 +1137,9 @@ const cancelEdit = (): void => {
     background: linear-gradient(135deg, var(--primary-color) 0%, var(--hover-primary-color) 100%);
     border-radius: 12px;
     box-shadow: var(--shadow-sm);
+    position: sticky;
+    top: 0;
+    z-index: 20;
 }
 
 .link-mode-toggle {
