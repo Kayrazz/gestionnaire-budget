@@ -3,6 +3,7 @@ import { ref, computed, onMounted } from "vue";
 import getCookie from "../utils/getCookies";
 import type { Category, CurrencyCode, Transaction } from "../utils/JsonManager";
 import { categoriesManager, transactionsManager, usersManager } from "../utils/JsonManager";
+import { parseOfxTransactions } from "../utils/parseOfxTransactions";
 import AppButton from "../components/AppButton.vue";
 
 /**
@@ -40,6 +41,9 @@ interface TransactionGroup {
  * État initial du formulaire
  */
 const defaultCurrency = ref<CurrencyCode>("EUR");
+const currentUserId = ref<number | null>(null);
+const ofxFileInput = ref<HTMLInputElement | null>(null);
+const isImportingOfx = ref(false);
 
 const createInitialFormState = (): FormState => ({
     id: null,
@@ -140,6 +144,7 @@ onMounted(async () => {
     const parsedUserId = userIdCookie ? Number.parseInt(userIdCookie, 10) : Number.NaN;
 
     if (Number.isInteger(parsedUserId) && parsedUserId > 0) {
+        currentUserId.value = parsedUserId;
         await usersManager.init(parsedUserId);
         const currentUser = usersManager.getById(parsedUserId);
         if (currentUser?.currency && isCurrencyCode(currentUser.currency)) {
@@ -147,8 +152,8 @@ onMounted(async () => {
         }
     }
 
-    await transactionsManager.init();
-    await categoriesManager.init();
+    await transactionsManager.init(currentUserId.value ?? undefined);
+    await categoriesManager.init(currentUserId.value ?? undefined);
     transactions.value = transactionsManager.getAll();
     categories.value = categoriesManager.getAll();
 });
@@ -520,6 +525,13 @@ const confirmDeleteTransaction = (): void => {
  * Sauvegarde ou crée une transaction
  */
 const saveTransaction = (): void => {
+    const userId = currentUserId.value;
+
+    if (!userId) {
+        alert("Utilisateur non connecté. Veuillez vous reconnecter.");
+        return;
+    }
+
     const amount = Number(formState.value.amount);
 
     if (!formState.value.nom.trim()) {
@@ -545,7 +557,7 @@ const saveTransaction = (): void => {
         categories: formState.value.categories,
         status: formState.value.status,
         link: formState.value.link,
-        user_id: 1,
+        user_id: userId,
     };
 
     if (formState.value.id !== null) {
@@ -559,6 +571,121 @@ const saveTransaction = (): void => {
     }
 
     resetForm();
+};
+
+const buildTransactionDedupKey = (transaction: {
+    date: string;
+    amount: number;
+    nom: string;
+    description: string;
+}): string => {
+    return [
+        transaction.date.slice(0, 10),
+        transaction.amount.toFixed(2),
+        transaction.nom.trim().toLowerCase(),
+        transaction.description.trim().toLowerCase(),
+    ].join("|");
+};
+
+const openOfxFilePicker = (): void => {
+    ofxFileInput.value?.click();
+};
+
+const importOfxFile = async (file: File): Promise<void> => {
+    const userId = currentUserId.value;
+    if (!userId) {
+        alert("Utilisateur non connecté. Veuillez vous reconnecter.");
+        return;
+    }
+
+    isImportingOfx.value = true;
+
+    try {
+        const ofxContent = await file.text();
+        const parsedTransactions = parseOfxTransactions(ofxContent);
+
+        const existingKeys = new Set(
+            transactions.value.map((transaction: Transaction) =>
+                buildTransactionDedupKey({
+                    date: transaction.date,
+                    amount: transaction.amount,
+                    nom: transaction.nom,
+                    description: transaction.description,
+                }),
+            ),
+        );
+
+        let importedCount = 0;
+        let skippedCount = 0;
+
+        parsedTransactions.forEach((parsedTransaction) => {
+            const descriptionParts = [parsedTransaction.description];
+            if (parsedTransaction.fitId) {
+                descriptionParts.push(`FITID: ${parsedTransaction.fitId}`);
+            }
+
+            const description = descriptionParts.filter(Boolean).join(" • ");
+            const dedupKey = buildTransactionDedupKey({
+                date: parsedTransaction.date,
+                amount: parsedTransaction.amount,
+                nom: parsedTransaction.nom,
+                description,
+            });
+
+            if (existingKeys.has(dedupKey)) {
+                skippedCount += 1;
+                return;
+            }
+
+            transactionsManager.create({
+                date: parsedTransaction.date,
+                amount: parsedTransaction.amount,
+                nom: parsedTransaction.nom,
+                description,
+                categories: [],
+                status: parsedTransaction.status,
+                link: [],
+                user_id: userId,
+            });
+
+            existingKeys.add(dedupKey);
+            importedCount += 1;
+        });
+
+        transactions.value = transactionsManager.getAll();
+
+        if (importedCount === 0) {
+            alert("Aucune nouvelle transaction importée (doublons détectés).");
+            return;
+        }
+
+        alert(
+            skippedCount > 0
+                ? `${importedCount} transaction(s) importée(s), ${skippedCount} doublon(s) ignoré(s).`
+                : `${importedCount} transaction(s) importée(s) avec succès.`,
+        );
+    } catch (error) {
+        const fallbackMessage = "Erreur lors de l'import OFX.";
+        const message = error instanceof Error ? error.message : fallbackMessage;
+        alert(message);
+    } finally {
+        isImportingOfx.value = false;
+    }
+};
+
+const onOfxFileSelected = async (event: Event): Promise<void> => {
+    const input = event.target as HTMLInputElement | null;
+    const file = input?.files?.[0];
+
+    if (!file) {
+        return;
+    }
+
+    await importOfxFile(file);
+
+    if (input) {
+        input.value = "";
+    }
 };
 
 /**
@@ -625,9 +752,27 @@ const cancelEdit = (): void => {
 
 <template>
     <div class="transactions">
+        <input
+            ref="ofxFileInput"
+            type="file"
+            accept=".ofx"
+            class="hidden"
+            @change="onOfxFileSelected"
+        />
+
         <div class="transactions-header">
             <h1>Transactions</h1>
-            <AppButton @click="openCreateForm">Nouveau</AppButton>
+            <div class="header-actions">
+                <AppButton
+                    size="sm"
+                    variant="surface"
+                    @click="openOfxFilePicker"
+                    :disabled="isImportingOfx"
+                >
+                    {{ isImportingOfx ? "Import OFX..." : "Import de données" }}
+                </AppButton>
+                <AppButton @click="openCreateForm">Nouveau</AppButton>
+            </div>
         </div>
 
         <div class="actions-bar">
@@ -945,6 +1090,12 @@ const cancelEdit = (): void => {
     align-items: center;
     margin-bottom: 25px;
     gap: 15px;
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
 }
 
 .transactions-header h1 {
