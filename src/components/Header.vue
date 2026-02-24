@@ -1,8 +1,22 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-const username = ref('');
-const ammount = ref(0);
-const showAmount = ref(true);
+import { ref, watch, onMounted } from 'vue';
+
+const username = ref<string>('');
+const ammount = ref<number>(0);
+const showAmount = ref<boolean>(true);
+
+onMounted(() => {
+    const cookieValue = document.cookie.split('; ').find(row => row.startsWith('showAmount='));
+    if (cookieValue) {
+        showAmount.value = cookieValue.split('=')[1] === 'true';
+    }
+});
+
+watch(showAmount, (newValue) => {
+    document.cookie = `showAmount=${newValue}`;
+})
+
+
 fetch("/user.json")
     .then((response) => response.json())
     .then((data) => {
@@ -17,7 +31,7 @@ fetch("/user.json")
 
 <template>
     <header
-        class="header ml-[150px] flex items-center justify-between p-4 bg-gray-200 border-2 border-gray-400 rounded">
+        class="header md:ml-[150px] flex md:justify-between justify-end gap-10 p-4 bg-gray-200 border-2 border-gray-400 rounded">
         <span id="username">{{ username }}</span>
         <span id="ammount">
             <button @click="showAmount = !showAmount" class="mr-2 text-gray-600 hover:text-gray-800 cursor-pointer">

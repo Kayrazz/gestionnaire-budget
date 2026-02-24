@@ -2,6 +2,9 @@
 
 :root {
   --primary-color: #220a7b;
+  --secondary-color: #fbbf24;
+
+  --hover-primary-color: #2500b7;
 }
 
 .theme {
@@ -19,20 +22,7 @@
   }
 }
 
-
 #app {
   background-color: whitesmoke;
   height: 100vh;
-}
-
-.link {
-  display: block;
-  padding: 10px;
-  color: black;
-  text-decoration: none;
-
-  &:hover {
-    background-color: var(--primary-color);
-    color: white;
-  }
 }
