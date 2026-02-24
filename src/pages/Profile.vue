@@ -330,7 +330,41 @@ const confirmDeleteUser = (): void => {
     router.push("/login");
 };
 
+const THEME_STORAGE_KEY = "budget-manager:theme";
+type AppTheme = "white" | "black" | "purple";
+const selectedTheme = ref<AppTheme>("white");
+
+const applyTheme = (theme: AppTheme): void => {
+    document.documentElement.setAttribute("data-theme", theme);
+};
+
+const loadThemeFromStorage = (): void => {
+    const savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
+    if (savedTheme === "white" || savedTheme === "black" || savedTheme === "purple") {
+        selectedTheme.value = savedTheme;
+    }
+    applyTheme(selectedTheme.value);
+};
+
+const handleThemeChange = (): void => {
+    applyTheme(selectedTheme.value);
+    localStorage.setItem(THEME_STORAGE_KEY, selectedTheme.value);
+};
+
+const themeDotClass = computed<string>(() => {
+    if (selectedTheme.value === "black") {
+        return "bg-black border-gray-600";
+    }
+
+    if (selectedTheme.value === "purple") {
+        return "bg-purple-500 border-purple-500";
+    }
+
+    return "bg-white border-gray-400";
+});
+
 onMounted(async () => {
+    loadThemeFromStorage();
     await loadUsers();
     syncFormWithSelection();
 });
@@ -343,6 +377,22 @@ onUnmounted(() => {
 <template>
     <section class="p-6 space-y-6">
         <h1 class="text-2xl font-semibold">Gestion du profil utilisateur</h1>
+
+        <label class="flex max-w-xs flex-col gap-1">
+            <span class="text-sm">Thème</span>
+            <div class="flex items-center gap-2">
+                <span class="inline-block h-3 w-3 rounded-full border" :class="themeDotClass" aria-hidden="true" />
+                <select
+                    v-model="selectedTheme"
+                    class="w-full rounded border px-3 py-2"
+                    @change="handleThemeChange"
+                >
+                    <option value="white">Blanc</option>
+                    <option value="black">Noir</option>
+                    <option value="purple">Purple</option>
+                </select>
+            </div>
+        </label>
 
         <p v-if="errorMessage" class="text-sm text-red-600">
             {{ errorMessage }}
