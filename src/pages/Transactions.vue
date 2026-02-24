@@ -1411,4 +1411,152 @@ const cancelEdit = (): void => {
 .delete-popover-text {
     color: var(--muted-text);
 }
+
+@media (max-width: 1024px) {
+    .transactions {
+        padding: 16px;
+    }
+
+    .actions-bar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+    }
+
+    .group-controls {
+        flex-wrap: wrap;
+    }
+
+    .total-amount {
+        text-align: right;
+    }
+
+    .filters-bar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .filter-group {
+        min-width: 0;
+        width: 100%;
+    }
+
+    .transaction-description-compact {
+        max-width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .transactions {
+        padding: 12px;
+    }
+
+    .transactions-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .transactions-header :deep(button) {
+        width: 100%;
+    }
+
+    .group-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+
+    .group-header-content {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .group-total {
+        margin-left: 0;
+    }
+
+    .unlink-group-btn {
+        margin-left: 0;
+        width: 100%;
+    }
+
+    .transaction-row {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+        padding: 10px 12px;
+    }
+
+    .transaction-info {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+
+    .transaction-main {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .transaction-name-compact,
+    .transaction-description-compact {
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    .transaction-secondary {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .transaction-category-select {
+        max-width: none;
+        width: 100%;
+    }
+
+    .transaction-amount-compact {
+        min-width: 0;
+        margin-left: auto;
+    }
+
+    .transaction-actions-compact {
+        width: 100%;
+        justify-content: flex-end;
+    }
+
+    .link-to-btn-compact {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .transactions-header h1 {
+        font-size: 24px;
+    }
+
+    .actions-bar {
+        padding: 12px;
+    }
+
+    .form-section {
+        padding: 16px;
+    }
+
+    .transaction-form {
+        grid-template-columns: 1fr;
+    }
+
+    .transaction-date-compact {
+        min-width: 0;
+    }
+
+    .transaction-amount-compact {
+        width: 100%;
+        text-align: left;
+    }
+
+    .delete-popover-card {
+        max-width: 100%;
+    }
+}
 </style>

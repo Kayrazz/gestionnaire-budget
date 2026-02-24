@@ -49,11 +49,11 @@ watch(() => route.path, checkAuth);
   <!-- Afficher nav et header sauf sur /login -->
   <template v-if="route.path !== '/login'">
     <!-- Burger button for mobile -->
-    <button class="md:hidden fixed top-4 left-4 z-50 p-2 rounded bg-gray-400 focus:outline-none" @click="toggleMenu"
+    <button class="md:hidden fixed top-4 left-4 z-50 p-2 rounded bg-[var(--color-bg)] focus:outline-none" @click="toggleMenu"
       aria-label="Ouvrir le menu">
-      <span class="block w-6 h-0.5 bg-black mb-1"></span>
-      <span class="block w-6 h-0.5 bg-black mb-1"></span>
-      <span class="block w-6 h-0.5 bg-black"></span>
+      <span class="block w-6 h-0.5 bg-[var(--color-text)] mb-1"></span>
+      <span class="block w-6 h-0.5 bg-[var(--color-text)] mb-1"></span>
+      <span class="block w-6 h-0.5 bg-[var(--color-text)]"></span>
     </button>
 
     <!-- Navigation -->
@@ -83,7 +83,7 @@ watch(() => route.path, checkAuth);
 @import "tailwindcss";
 
 .link {
-  @apply px-4 p-2 rounded transition-colors block hover:text-white hover:bg-[var(--primary-color)];
+  @apply px-4 p-2 rounded transition-colors block hover:text-[var(--color-text-hover)] hover:bg-[var(--primary-color)];
 }
 
 @media (max-width: 767px) {
@@ -93,7 +93,7 @@ watch(() => route.path, checkAuth);
     left: 0;
     width: 100vw;
     height: auto;
-    background: #d1d5db;
+    background: var(--color-bg);
     flex-direction: column;
     align-items: flex-start;
     padding-top: 60px;

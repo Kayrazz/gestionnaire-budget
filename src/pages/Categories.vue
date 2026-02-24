@@ -161,15 +161,15 @@ onMounted(async () => {
 </script>
 
 <template>
-    <section class="p-6 space-y-6">
+    <section class="p-4 sm:p-6 space-y-6">
         <h1 class="text-2xl font-semibold">Gestion des catégories</h1>
 
-        <p v-if="errorMessage" class="text-sm text-red-600">
+        <p v-if="errorMessage" class="text-sm text-[var(--danger-color)]">
             {{ errorMessage }}
         </p>
 
         <form class="space-y-3" @submit.prevent="submitForm">
-            <div class="grid gap-3 md:grid-cols-2">
+            <div class="grid gap-3 grid-cols-1 md:grid-cols-2">
                 <label class="flex flex-col gap-1">
                     <span class="text-sm">Nom</span>
                     <input
@@ -204,11 +204,11 @@ onMounted(async () => {
 
             </div>
 
-            <div class="flex gap-2">
-                <AppButton type="submit">
+            <div class="flex flex-col sm:flex-row gap-2">
+                <AppButton type="submit" class="w-full sm:w-auto">
                     {{ isEditing ? "Mettre à jour" : "Créer" }}
                 </AppButton>
-                <AppButton type="button" :disabled="!hasConnectedUser" @click="resetForm">
+                <AppButton type="button" class="w-full sm:w-auto" :disabled="!hasConnectedUser" @click="resetForm">
                     Annuler
                 </AppButton>
             </div>
@@ -220,19 +220,19 @@ onMounted(async () => {
             <li
                 v-for="category in categories"
                 :key="category.id"
-                class="flex items-start justify-between rounded border p-3"
+                class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between rounded border border-[var(--color-border)] p-3"
             >
                 <div>
                     <p class="font-medium">{{ category.name }}</p>
-                    <p class="text-sm text-gray-600">{{ category.description }}</p>
-                    <p class="text-sm text-gray-600">Budget: {{ category.budget }} {{ defaultCurrency }}</p>
+                    <p class="text-sm text-[var(--muted-text)]">{{ category.description }}</p>
+                    <p class="text-sm text-[var(--muted-text)]">Budget: {{ category.budget }} {{ defaultCurrency }}</p>
                 </div>
 
-                <div class="flex gap-2">
-                    <AppButton type="button" size="sm" @click="startEdit(category)">
+                <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                    <AppButton type="button" size="sm" class="w-full sm:w-auto" @click="startEdit(category)">
                         Modifier
                     </AppButton>
-                    <AppButton type="button" size="sm" variant="danger" @click="removeCategory(category.id)">
+                    <AppButton type="button" size="sm" class="w-full sm:w-auto" variant="danger" @click="removeCategory(category.id)">
                         Supprimer
                     </AppButton>
                 </div>

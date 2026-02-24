@@ -105,7 +105,7 @@ const passwordStrength = computed<{
         return {
             score: 0,
             label: "Aucun mot de passe",
-            colorClass: "bg-gray-300",
+            colorClass: "bg-[var(--color-border)]",
         };
     }
 
@@ -128,7 +128,7 @@ const passwordStrength = computed<{
         return {
             score,
             label: "Faible",
-            colorClass: "bg-red-500",
+            colorClass: "bg-[var(--danger-color)]",
         };
     }
 
@@ -136,7 +136,7 @@ const passwordStrength = computed<{
         return {
             score,
             label: "Moyen",
-            colorClass: "bg-orange-500",
+            colorClass: "bg-[var(--secondary-color)]",
         };
     }
 
@@ -144,14 +144,14 @@ const passwordStrength = computed<{
         return {
             score,
             label: "Bon",
-            colorClass: "bg-yellow-500",
+            colorClass: "bg-[var(--primary-color)]",
         };
     }
 
     return {
         score,
         label: "Très bon",
-        colorClass: "bg-green-600",
+        colorClass: "bg-[var(--success-color)]",
     };
 });
 
@@ -402,10 +402,10 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <section class="p-6 space-y-6">
+    <section class="p-4 sm:p-6 space-y-6">
         <h1 class="text-2xl font-semibold">Gestion du profil utilisateur</h1>
 
-        <label class="flex max-w-xs flex-col gap-1">
+        <label class="flex w-full sm:max-w-xs flex-col gap-1">
             <span class="text-sm">Thème</span>
             <div class="flex items-center gap-2">
                 <span class="inline-block h-3 w-3 rounded-full border" :class="themeDotClass" aria-hidden="true" />
@@ -421,10 +421,10 @@ onUnmounted(() => {
             </div>
         </label>
 
-        <p v-if="errorMessage" class="text-sm text-red-600">
+        <p v-if="errorMessage" class="text-sm text-[var(--danger-color)]">
             {{ errorMessage }}
         </p>
-        <p v-if="successMessage" class="text-sm text-green-700">
+        <p v-if="successMessage" class="text-sm text-[var(--success-color)]">
             {{ successMessage }}
         </p>
 
@@ -433,7 +433,7 @@ onUnmounted(() => {
         <template v-else>
 
             <form class="space-y-3" @submit.prevent="saveUser">
-                <div class="grid gap-3 md:grid-cols-2">
+                <div class="grid gap-3 grid-cols-1 md:grid-cols-2">
                     <label class="flex flex-col gap-1">
                         <span class="text-sm">Nom affiché</span>
                         <input v-model="formState.name" type="text" class="rounded border px-3 py-2" :disabled="!hasSelectedUser" />
@@ -460,7 +460,7 @@ onUnmounted(() => {
                             />
                             <button
                                 type="button"
-                                class="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-gray-700 hover:bg-gray-200 disabled:opacity-50"
+                                class="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-[var(--color-text)] hover:bg-[var(--hover-bg)] disabled:opacity-50"
                                 :disabled="!hasSelectedUser"
                                 :aria-label="showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'"
                                 @click="togglePasswordVisibility"
@@ -477,14 +477,14 @@ onUnmounted(() => {
                             </button>
                         </div>
                         <div class="space-y-1">
-                            <div class="h-2 w-full rounded bg-gray-200 overflow-hidden">
+                            <div class="h-2 w-full rounded bg-[var(--color-border)] overflow-hidden">
                                 <div
                                     class="h-full transition-all"
                                     :class="passwordStrength.colorClass"
                                     :style="{ width: `${passwordStrength.score}%` }"
                                 />
                             </div>
-                            <p class="text-xs text-gray-600">Niveau du mot de passe: {{ passwordStrength.label }}</p>
+                            <p class="text-xs text-[var(--muted-text)]">Niveau du mot de passe: {{ passwordStrength.label }}</p>
                         </div>
                     </label>
 
@@ -534,9 +534,9 @@ onUnmounted(() => {
                     </label>
                 </div>
 
-                <div class="flex gap-2">
-                    <AppButton type="submit" :disabled="!hasSelectedUser || saving">Sauvegarder</AppButton>
-                    <AppButton type="button" variant="danger" :disabled="!hasSelectedUser" @click="openDeletePopover">
+                <div class="flex flex-col sm:flex-row gap-2">
+                    <AppButton type="submit" class="w-full sm:w-auto" :disabled="!hasSelectedUser || saving">Sauvegarder</AppButton>
+                    <AppButton type="button" class="w-full sm:w-auto" variant="danger" :disabled="!hasSelectedUser" @click="openDeletePopover">
                         Supprimer l'utilisateur
                     </AppButton>
                 </div>
@@ -547,9 +547,9 @@ onUnmounted(() => {
                 class="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4"
                 @click.self="closeDeletePopover"
             >
-                <div class="w-full max-w-md rounded border bg-white p-4 space-y-4">
+                <div class="w-full max-w-md rounded border border-[var(--color-border)] bg-[var(--color-surface)] p-4 space-y-4">
                     <h2 class="text-lg font-semibold">Confirmer la suppression</h2>
-                    <p class="text-sm text-gray-700">
+                    <p class="text-sm text-[var(--muted-text)]">
                         Vous êtes sur le point de supprimer <strong>{{ selectedUserLabel }}</strong>. Cette action est irréversible.
                     </p>
 
@@ -557,11 +557,11 @@ onUnmounted(() => {
                         <div
                             class="h-10 w-10 rounded-full border"
                             :style="{
-                                background: `conic-gradient(#ef4444 ${deleteProgressPercent}%, #e5e7eb ${deleteProgressPercent}% 100%)`,
+                                background: `conic-gradient(var(--danger-color) ${deleteProgressPercent}%, var(--color-border) ${deleteProgressPercent}% 100%)`,
                             }"
                             aria-hidden="true"
                         />
-                        <span class="text-sm text-gray-700">
+                        <span class="text-sm text-[var(--muted-text)]">
                             Confirmation disponible dans {{ Math.ceil(deleteCountdownRemainingMs / 1000) }}s
                         </span>
                     </div>
