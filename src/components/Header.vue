@@ -51,7 +51,7 @@ watch(showAmount, (newValue) => {
 
 <template>
     <header
-        class="header md:ml-[150px] flex md:justify-between justify-end gap-10 p-4 bg-gray-200 border-2 border-gray-400 rounded">
+        class="header md:ml-[150px] flex md:justify-between justify-end gap-10 p-4 bg-[var(--color-bg)] border-2 border-gray-400 rounded">
         <span id="username">{{ username }}</span>
         <span id="ammount">
             <button @click="showAmount = !showAmount" class="mr-2 text-gray-600 hover:text-gray-800 cursor-pointer">
