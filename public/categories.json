@@ -3,22 +3,26 @@
         {
             "id": 1,
             "name": "Nourriture",
-            "description": "Dépenses liées à l'alimentation"
+            "description": "Dépenses liées à l'alimentation",
+            "userId": 1
         },
         {
             "id": 2,
             "name": "Revenus",
-            "description": "Sources de revenus"
+            "description": "Sources de revenus",
+            "userId": 1
         },
         {
             "id": 3,
             "name": "Transport",
-            "description": "Dépenses liées au transport"
+            "description": "Dépenses liées au transport",
+            "userId": 1
         },
         {
             "id": 4,
             "name": "Loisirs",
-            "description": "Dépenses liées aux loisirs et divertissements"
+            "description": "Dépenses liées aux loisirs et divertissements",
+            "userId": 1
         }
     ]
 }
