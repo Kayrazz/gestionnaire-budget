@@ -8,7 +8,12 @@ import {
     type Category,
     type Rule,
 } from "../utils/JsonManager";
-import { doesRuleMatchTransaction, getRuleCategoryIds } from "../utils/ruleMatching";
+import {
+    doesRuleMatchTransaction,
+    formatRulePatternForInput,
+    getRuleCategoryIds,
+    normalizeRulePatternForStorage,
+} from "../utils/ruleMatching";
 import AppButton from "../components/AppButton.vue";
 import AppToast from "../components/AppToast.vue";
 
@@ -74,6 +79,10 @@ const sortedRules = computed<Rule[]>(() => {
     return [...rules.value].sort((left: Rule, right: Rule) => left.id - right.id);
 });
 
+const toUserFriendlyPattern = (value: string): string => {
+    return formatRulePatternForInput(value);
+};
+
 const loadData = async (): Promise<void> => {
     const userIdCookie = getCookie("user_id");
     const parsedUserId = userIdCookie ? Number.parseInt(userIdCookie, 10) : Number.NaN;
@@ -112,8 +121,8 @@ const openEditForm = (): void => {
         id: selectedRule.value.id,
         categoriesId: selectedRule.value.categoriesId,
         description: selectedRule.value.description,
-        transactionNameRegex: selectedRule.value.transactionNameRegex,
-        transactionDescriptionRegex: selectedRule.value.transactionDescriptionRegex,
+        transactionNameRegex: formatRulePatternForInput(selectedRule.value.transactionNameRegex),
+        transactionDescriptionRegex: formatRulePatternForInput(selectedRule.value.transactionDescriptionRegex),
     };
 
     isEditing.value = true;
@@ -150,8 +159,8 @@ const saveRule = (): void => {
     const payload: Omit<Rule, "id"> = {
         categoriesId: formState.value.categoriesId,
         description: formState.value.description.trim(),
-        transactionNameRegex: formState.value.transactionNameRegex.trim(),
-        transactionDescriptionRegex: formState.value.transactionDescriptionRegex.trim(),
+        transactionNameRegex: normalizeRulePatternForStorage(formState.value.transactionNameRegex),
+        transactionDescriptionRegex: normalizeRulePatternForStorage(formState.value.transactionDescriptionRegex),
         userId: currentUserId.value,
     };
 
@@ -306,7 +315,7 @@ onMounted(() => {
                         id="rule-name-regex"
                         v-model="formState.transactionNameRegex"
                         type="text"
-                        placeholder="ex: .*supermarché.*"
+                        placeholder="ex: supermarché | restaurant | épicerie"
                         class="form-input"
                     />
                 </div>
@@ -317,10 +326,15 @@ onMounted(() => {
                         id="rule-description-regex"
                         v-model="formState.transactionDescriptionRegex"
                         type="text"
-                        placeholder="ex: .*restaurant.*"
+                        placeholder="ex: facture | abonnement"
                         class="form-input"
                     />
                 </div>
+
+                <p class="form-hint">
+                    Saisissez des mots-clés séparés par <strong>|</strong>, <strong>,</strong> ou <strong>;</strong>.
+                    Exemple: <em>supermarché | restaurant | café</em>.
+                </p>
 
                 <div class="form-actions">
                     <AppButton type="submit">Enregistrer</AppButton>
@@ -347,8 +361,8 @@ onMounted(() => {
                             <span class="node-badge">Règle {{ rule.id }}</span>
                             <p class="transaction-name-compact">{{ rule.description }}</p>
                             <span class="transaction-description-compact">
-                                Nom: {{ rule.transactionNameRegex || "-" }} • Description:
-                                {{ rule.transactionDescriptionRegex || "-" }}
+                                Nom: {{ toUserFriendlyPattern(rule.transactionNameRegex) || "-" }} • Description:
+                                {{ toUserFriendlyPattern(rule.transactionDescriptionRegex) || "-" }}
                             </span>
                         </div>
                     </div>
@@ -363,8 +377,8 @@ onMounted(() => {
         <div v-if="selectedRule" class="selected-rule-panel bg-[var(--color-bg)] border-2 border-gray-400 rounded p-4 mt-4 space-y-2">
             <strong>Détail de la règle sélectionnée</strong>
             <p>Catégorie: {{ selectedCategoryLabel }}</p>
-            <p>Motif nom: {{ selectedRule.transactionNameRegex || "-" }}</p>
-            <p>Motif description: {{ selectedRule.transactionDescriptionRegex || "-" }}</p>
+            <p>Motif nom: {{ toUserFriendlyPattern(selectedRule.transactionNameRegex) || "-" }}</p>
+            <p>Motif description: {{ toUserFriendlyPattern(selectedRule.transactionDescriptionRegex) || "-" }}</p>
         </div>
 
         <div v-if="showDeletePopover" class="delete-popover-overlay fixed inset-0 z-50 flex items-center justify-center p-4">
