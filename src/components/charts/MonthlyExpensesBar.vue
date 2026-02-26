@@ -17,7 +17,7 @@ function getMonthlyExpenses() {
     if (!raw) return { months, sums: Array(12).fill(0) };
     try {
         const arr = JSON.parse(raw);
-        const sums = months.map((label, idx) => {
+        const sums = months.map((_, idx) => {
             const d = new Date(now.getFullYear(), now.getMonth() - (11 - idx), 1);
             const year = d.getFullYear();
             const month = d.getMonth() + 1;
