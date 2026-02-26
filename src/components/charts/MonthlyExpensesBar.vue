@@ -42,9 +42,10 @@ function updateChart() {
         myChart = echarts.init(chartRef.value, theme === 'white' ? null : 'dark');
     }
     const { months, sums } = getMonthlyExpenses();
+    const nbMonths = months.length;
     const option = {
         title: {
-            text: 'Dépenses mensuelles sur 12 mois',
+            text: `Dépenses mensuelles sur ${nbMonths} mois`,
             left: 'center',
             top: 10
         },
