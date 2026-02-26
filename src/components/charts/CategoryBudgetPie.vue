@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue';
 import * as echarts from 'echarts';
-const props = defineProps<{ selectedDate: string }>();
 
 const chartRef = ref<HTMLDivElement | null>(null);
 const categories = ref<any[]>([]);
@@ -103,16 +102,18 @@ function updateChart() {
     myChart.setOption(option);
 }
 
+const selectedDate = ref('2026-02');
+
 onMounted(() => {
     getCategories();
-    getTransactions(props.selectedDate);
+    getTransactions(selectedDate.value);
 });
 
 watch([selectedCategoryId, transactions], () => {
     updateChart();
 });
 
-watch(() => props.selectedDate, (newDate) => {
+watch(() => selectedDate.value, (newDate) => {
     getTransactions(newDate);
     updateChart();
 });
@@ -120,22 +121,43 @@ watch(() => props.selectedDate, (newDate) => {
 
 <template>
     <div class="chart">
-        <div>
-            <label for="category-select" class="mr-2">Catégorie :</label>
+        <div class="flex flex-row gap-8">
+            <div>
+                <label for="category-select" class="mr-2">Catégorie :</label>
             <select id="category-select" v-model="selectedCategoryId">
                 <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
             </select>
         </div>
 
-        <div class="flex flex-row relative">
-            <div ref="chartRef" class="w-full h-full"></div>
-            <div v-if="selectedCategoryId && getCategoryBudgetLeft()"
-                class="mt-4 text-center flex flex-col justify-center absolute top-5 right-5">
-                <p>Budget initial : <b>{{ getCategoryBudgetLeft()?.budget }} €</b></p>
-                <p>Dépensé : <b>{{ getCategoryBudgetLeft()?.spent }} €</b></p>
-                <p>Disponible : <b>{{ getCategoryBudgetLeft()?.left }} €</b></p>
-            </div>
+        <div>
+            <label for="date-selector">Période : </label>
+            <select name="date" id="date-selector" v-model="selectedDate"
+                @change="getTransactions(selectedDate)">
+                <option value="2026-01">Janvier 2026</option>
+                <option value="2026-02">Février 2026</option>
+                <option value="2026-03">Mars 2026</option>
+                <option value="2026-04">Avril 2026</option>
+                <option value="2026-05">Mai 2026</option>
+                <option value="2026-06">Juin 2026</option>
+                <option value="2026-07">Juillet 2026</option>
+                <option value="2026-08">Août 2026</option>
+                <option value="2026-09">Septembre 2026</option>
+                <option value="2026-10">Octobre 2026</option>
+                <option value="2026-11">Novembre 2026</option>
+                <option value="2026-12">Décembre 2026</option>
+            </select>
         </div>
+    </div>
+
+    <div class="flex flex-row relative">
+        <div ref="chartRef" class="w-full h-full"></div>
+        <div v-if="selectedCategoryId && getCategoryBudgetLeft()"
+            class="mt-4 text-center flex flex-col justify-center absolute top-5 right-5">
+            <p>Budget initial : <b>{{ getCategoryBudgetLeft()?.budget }} €</b></p>
+            <p>Dépensé : <b>{{ getCategoryBudgetLeft()?.spent }} €</b></p>
+            <p>Disponible : <b>{{ getCategoryBudgetLeft()?.left }} €</b></p>
+        </div>
+    </div>
     </div>
 </template>
 
