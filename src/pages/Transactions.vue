@@ -797,29 +797,14 @@ const cancelEdit = (): void => {
 
 <template>
     <div class="transactions">
-        <AppToast
-            v-model="toastVisible"
-            :message="toastMessage"
-            :type="toastType"
-        />
+        <AppToast v-model="toastVisible" :message="toastMessage" :type="toastType" />
 
-        <input
-            ref="ofxFileInput"
-            type="file"
-            accept=".ofx"
-            class="hidden"
-            @change="onOfxFileSelected"
-        />
+        <input ref="ofxFileInput" type="file" accept=".ofx" class="hidden" @change="onOfxFileSelected" />
 
         <div class="transactions-header">
             <h1>Transactions</h1>
             <div class="header-actions">
-                <AppButton
-                    size="sm"
-                    variant="surface"
-                    @click="openOfxFilePicker"
-                    :disabled="isImportingOfx"
-                >
+                <AppButton size="sm" variant="surface" @click="openOfxFilePicker" :disabled="isImportingOfx">
                     {{ isImportingOfx ? "Import OFX..." : "Import de données" }}
                 </AppButton>
                 <AppButton @click="openCreateForm">Nouveau</AppButton>
@@ -828,43 +813,21 @@ const cancelEdit = (): void => {
 
         <div class="actions-bar">
             <div class="group-controls">
-                <AppButton
-                    size="sm"
-                    variant="surface"
-                    @click="collapseAllGroups"
-                    :disabled="areAllGroupsCollapsed"
-                >
+                <AppButton size="sm" variant="surface" @click="collapseAllGroups" :disabled="areAllGroupsCollapsed">
                     Tout plier
                 </AppButton>
-                <AppButton
-                    size="sm"
-                    variant="surface"
-                    @click="expandAllGroups"
-                    :disabled="areAllGroupsExpanded"
-                >
+                <AppButton size="sm" variant="surface" @click="expandAllGroups" :disabled="areAllGroupsExpanded">
                     Tout déplier
                 </AppButton>
-                <AppButton
-                    size="sm"
-                    :variant="isLinkingMode ? 'danger' : 'surface'"
-                    @click="toggleLinkingMode"
-                >
+                <AppButton size="sm" :variant="isLinkingMode ? 'danger' : 'surface'" @click="toggleLinkingMode">
                     Lien
                 </AppButton>
-                <AppButton
-                    size="sm"
-                    variant="surface"
-                    @click="editSelectedTransaction"
-                    :disabled="!selectedTransaction"
-                >
+                <AppButton size="sm" variant="surface" @click="editSelectedTransaction"
+                    :disabled="!selectedTransaction">
                     Modifier
                 </AppButton>
-                <AppButton
-                    size="sm"
-                    variant="danger"
-                    @click="deleteSelectedTransaction"
-                    :disabled="!selectedTransaction"
-                >
+                <AppButton size="sm" variant="danger" @click="deleteSelectedTransaction"
+                    :disabled="!selectedTransaction">
                     Supprimer
                 </AppButton>
             </div>
@@ -893,7 +856,7 @@ const cancelEdit = (): void => {
                 ? "Mode lien: cliquez d'abord sur la transaction enfant."
                 : "Mode lien: cliquez maintenant sur la transaction parent." }}
         </p>
-        
+
 
         <!-- Formulaire d'ajout/modification -->
         <div v-if="isEditing" class="form-section">
@@ -901,60 +864,31 @@ const cancelEdit = (): void => {
             <form @submit.prevent="saveTransaction" class="transaction-form">
                 <div class="form-group">
                     <label for="date">Date</label>
-                    <input
-                        id="date"
-                        v-model="formState.date"
-                        type="date"
-                        required
-                        class="form-input"
-                    />
+                    <input id="date" v-model="formState.date" type="date" required class="form-input" />
                 </div>
 
                 <div class="form-group">
                     <label for="nom">Nom</label>
-                    <input
-                        id="nom"
-                        v-model="formState.nom"
-                        type="text"
-                        placeholder="ex: Carrefour"
-                        required
-                        class="form-input"
-                    />
+                    <input id="nom" v-model="formState.nom" type="text" placeholder="ex: Carrefour" required
+                        class="form-input" />
                 </div>
 
                 <div class="form-group">
                     <label for="amount">Montant</label>
-                    <input
-                        id="amount"
-                        v-model="formState.amount"
-                        type="number"
-                        placeholder="ex: -50.00"
-                        step="0.01"
-                        required
-                        class="form-input"
-                    />
+                    <input id="amount" v-model="formState.amount" type="number" placeholder="ex: -50.00" step="0.01"
+                        required class="form-input" />
                 </div>
 
                 <div class="form-group">
                     <label for="description">Description</label>
-                    <textarea
-                        id="description"
-                        v-model="formState.description"
-                        placeholder="Détails supplémentaires"
-                        class="form-input"
-                        rows="3"
-                    ></textarea>
+                    <textarea id="description" v-model="formState.description" placeholder="Détails supplémentaires"
+                        class="form-input" rows="3"></textarea>
                 </div>
 
                 <div class="form-group">
                     <label for="status">Statut</label>
-                    <input
-                        id="status"
-                        v-model="formState.status"
-                        type="text"
-                        placeholder="ex: En attente, Confirmé"
-                        class="form-input"
-                    />
+                    <input id="status" v-model="formState.status" type="text" placeholder="ex: En attente, Confirmé"
+                        class="form-input" />
                 </div>
 
                 <div class="form-actions">
@@ -971,77 +905,57 @@ const cancelEdit = (): void => {
             </div>
 
             <div v-else class="transactions-grid">
-                <div 
-                    v-for="group in groupedTransactions" 
-                    :key="group.id"
-                    class="transaction-group"
-                    :class="{ 'is-linked': group.childCount > 0 }"
-                >
+                <div v-for="group in groupedTransactions" :key="group.id" class="transaction-group"
+                    :class="{ 'is-linked': group.childCount > 0 }">
                     <!-- En-tête du groupe (pour les transactions liées) -->
-                    <div 
-                        v-if="group.childCount > 0" 
-                        class="group-header"
-                        @click="toggleGroup(group.id)"
-                    >
+                    <div v-if="group.childCount > 0" class="group-header" @click="toggleGroup(group.id)">
                         <div class="group-header-content">
-                            <svg 
-                                class="expand-icon" 
-                                :class="{ 'expanded': isGroupExpanded(group.id) }"
-                                width="20" 
-                                height="20" 
-                                viewBox="0 0 24 24" 
-                                fill="none"
-                            >
-                                <path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <svg class="expand-icon" :class="{ 'expanded': isGroupExpanded(group.id) }" width="20"
+                                height="20" viewBox="0 0 24 24" fill="none">
+                                <path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" />
                             </svg>
                             <svg class="link-icon" width="20" height="20" viewBox="0 0 24 24" fill="none">
-                                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"
+                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"
+                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" />
                             </svg>
                             <span class="group-title">
-                                {{ group.root.nom }} • {{ group.childCount }} enfant{{ group.childCount > 1 ? "s" : "" }}
+                                {{ group.root.nom }} • {{ group.childCount }} enfant{{ group.childCount > 1 ? "s" : ""
+                                }}
                             </span>
-                            <span class="group-total" :class="{ 
+                            <span class="group-total" :class="{
                                 'positive': group.totalAmount > 0,
                                 'negative': group.totalAmount < 0
                             }">
                                 Total: {{ group.totalAmount.toFixed(2) }} {{ defaultCurrency }}
                             </span>
                         </div>
-                        <AppButton
-                            v-if="group.childCount > 0"
-                            size="sm"
-                            variant="danger"
-                            @click.stop="removeAllGroupLinks(group)"
-                            class="unlink-group-btn"
-                        >
+                        <AppButton v-if="group.childCount > 0" size="sm" variant="danger"
+                            @click.stop="removeAllGroupLinks(group)" class="unlink-group-btn">
                             Tout délier
                         </AppButton>
                     </div>
 
                     <!-- Contenu du groupe -->
-                    <div 
-                        class="group-content"
-                        :class="{ 
-                            'collapsed': group.childCount > 0 && !isGroupExpanded(group.id)
-                        }"
-                    >
-                        <div
-                            v-for="node in group.nodes"
-                            :key="node.transaction.id"
-                            class="transaction-row"
+                    <div class="group-content" :class="{
+                        'collapsed': group.childCount > 0 && !isGroupExpanded(group.id)
+                    }">
+                        <div v-for="node in group.nodes" :key="node.transaction.id" class="transaction-row"
                             :style="{ marginLeft: `${node.depth * 22}px` }"
-                            @click="handleTransactionRowClick(node.transaction.id)"
-                            :class="{
+                            @click="handleTransactionRowClick(node.transaction.id)" :class="{
                                 'link-source': isLinkingMode && linkChildId === node.transaction.id,
                                 'link-active': isLinkingMode && linkChildId !== null && linkChildId !== node.transaction.id,
                                 'child-row': node.depth > 0,
                                 'selected-row': selectedTransactionId === node.transaction.id,
-                            }"
-                        >
+                            }">
                             <div class="transaction-info">
                                 <div class="transaction-main">
-                                    <span class="node-badge" :class="{ 'is-parent': node.depth === 0, 'is-child': node.depth > 0 }">
+                                    <span class="node-badge"
+                                        :class="{ 'is-parent': node.depth === 0, 'is-child': node.depth > 0 }">
                                         {{ node.depth === 0 ? "Parent" : "Enfant" }}
                                     </span>
                                     <span class="transaction-date-compact">
@@ -1056,40 +970,29 @@ const cancelEdit = (): void => {
                                     <span v-if="node.transaction.status" class="transaction-status-compact">
                                         {{ node.transaction.status }}
                                     </span>
-                                    <select
-                                        class="transaction-category-select"
-                                        :value="getAssignedCategoryId(node.transaction)"
-                                        @click.stop
-                                        @change="onTransactionCategoryChange(node.transaction.id, $event)"
-                                    >
+                                    <select class="transaction-category-select"
+                                        :value="getAssignedCategoryId(node.transaction)" @click.stop
+                                        @change="onTransactionCategoryChange(node.transaction.id, $event)">
                                         <option value="">Sans catégorie</option>
-                                        <option
-                                            v-for="category in categories"
+                                        <option v-for="category in categories"
                                             :key="`tx-${node.transaction.id}-cat-${category.id}`"
-                                            :value="String(category.id)"
-                                        >
+                                            :value="String(category.id)">
                                             {{ category.name }}
                                         </option>
                                     </select>
-                                    <div 
-                                        class="transaction-amount-compact"
-                                        :class="{ 
-                                            'amount-positive': node.transaction.amount > 0, 
-                                            'amount-negative': node.transaction.amount < 0 
-                                        }"
-                                    >
-                                        {{ node.transaction.amount > 0 ? "+" : "" }}{{ node.transaction.amount.toFixed(2) }} {{ defaultCurrency }}
+                                    <div class="transaction-amount-compact" :class="{
+                                        'amount-positive': node.transaction.amount > 0,
+                                        'amount-negative': node.transaction.amount < 0
+                                    }">
+                                        {{ node.transaction.amount > 0 ? "+" : "" }}{{
+                                            node.transaction.amount.toFixed(2) }} {{ defaultCurrency }}
                                     </div>
                                 </div>
                             </div>
 
                             <div class="transaction-actions-compact" @click.stop>
-                                <button
-                                    v-if="node.depth > 0"
-                                    @click="removeParentLink(node.transaction.id)"
-                                    class="link-to-btn-compact unlink-btn-compact"
-                                    type="button"
-                                >
+                                <button v-if="node.depth > 0" @click="removeParentLink(node.transaction.id)"
+                                    class="link-to-btn-compact unlink-btn-compact" type="button">
                                     Retirer parent
                                 </button>
                             </div>
@@ -1099,27 +1002,22 @@ const cancelEdit = (): void => {
             </div>
         </div>
 
-        <div
-            v-if="showDeletePopover"
+        <div v-if="showDeletePopover"
             class="delete-popover-overlay fixed inset-0 z-50 flex items-center justify-center p-4"
-            @click.self="closeDeletePopover"
-        >
+            @click.self="closeDeletePopover">
             <div class="delete-popover-card w-full max-w-md rounded p-4 space-y-4">
                 <h2 class="text-lg font-semibold">Confirmer la suppression</h2>
                 <p class="delete-popover-text text-sm">
                     Vous allez supprimer la transaction
                     <strong>{{ pendingDeleteTransaction?.nom || "inconnue" }}</strong>
-                    ({{ pendingDeleteTransaction ? new Date(pendingDeleteTransaction.date).toLocaleDateString("fr-FR") : "date inconnue" }}).
+                    ({{ pendingDeleteTransaction ? new Date(pendingDeleteTransaction.date).toLocaleDateString("fr-FR") :
+                        "date inconnue" }}).
                     Cette action est irréversible.
                 </p>
 
                 <div class="flex justify-end gap-2">
                     <AppButton type="button" @click="closeDeletePopover">Annuler</AppButton>
-                    <AppButton
-                        type="button"
-                        variant="danger"
-                        @click="confirmDeleteTransaction"
-                    >
+                    <AppButton type="button" variant="danger" @click="confirmDeleteTransaction">
                         Confirmer
                     </AppButton>
                 </div>
@@ -1127,641 +1025,3 @@ const cancelEdit = (): void => {
         </div>
     </div>
 </template>
-
-<style scoped>
-.transactions {
-    padding: 20px;
-    max-width: 1400px;
-    margin: 0 auto;
-}
-
-.transactions-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 25px;
-    gap: 15px;
-
-.header-actions {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-}
-
-.transactions-header h1 {
-    margin: 0;
-    font-size: 28px;
-    font-weight: 600;
-    color: var(--color-text);
-}
-
-.actions-bar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 25px;
-    padding: 18px;
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--hover-primary-color) 100%);
-    border-radius: 12px;
-    box-shadow: var(--shadow-sm);
-    position: sticky;
-    top: 0;
-    z-index: 20;
-}
-
-.link-mode-toggle {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    cursor: pointer;
-    font-weight: 500;
-    color: white;
-    padding: 8px 16px;
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 8px;
-    transition: background 0.3s;
-}
-
-.link-mode-toggle:hover {
-    background: rgba(255, 255, 255, 0.3);
-}
-
-.link-mode-toggle input[type="checkbox"] {
-    cursor: pointer;
-    width: 18px;
-    height: 18px;
-    accent-color: white;
-}
-
-.total-amount {
-    font-weight: 700;
-    font-size: 20px;
-    color: white;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.group-controls {
-    display: flex;
-    gap: 8px;
-}
-
-.filters-bar {
-    display: flex;
-    gap: 16px;
-    align-items: end;
-    margin-bottom: 18px;
-    padding: 14px;
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: 10px;
-    box-shadow: var(--shadow-sm);
-}
-
-.filter-group {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    min-width: 220px;
-}
-
-.filter-group label {
-    font-size: 13px;
-    color: var(--muted-text);
-    font-weight: 600;
-}
-
-.filter-input {
-    padding: 9px 10px;
-    border: 1px solid var(--input-border);
-    border-radius: 8px;
-    background: var(--color-surface);
-    color: var(--color-text);
-}
-
-.link-mode-hint {
-    margin-top: -10px;
-    margin-bottom: 20px;
-    color: var(--muted-text);
-    font-size: 14px;
-    font-weight: 500;
-}
-
-.form-section {
-    margin-bottom: 30px;
-    border: none;
-    border-radius: 12px;
-    padding: 25px;
-    background: var(--color-surface);
-    box-shadow: var(--shadow-sm);
-}
-
-.form-section h2 {
-    margin-top: 0;
-    margin-bottom: 20px;
-    font-size: 20px;
-    color: var(--color-text);
-    font-weight: 600;
-}
-
-.transaction-form {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 18px;
-}
-
-.form-group {
-    display: flex;
-    flex-direction: column;
-}
-
-.form-group label {
-    margin-bottom: 6px;
-    font-weight: 600;
-    font-size: 14px;
-    color: var(--color-text);
-}
-
-.form-input {
-    padding: 12px;
-    border: 2px solid var(--input-border);
-    border-radius: 8px;
-    font-family: inherit;
-    font-size: 14px;
-    transition: all 0.3s;
-}
-
-.form-input:focus {
-    outline: none;
-    border-color: var(--input-border-focus);
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-}
-
-.form-actions {
-    grid-column: 1 / -1;
-    display: flex;
-    gap: 12px;
-    justify-content: flex-end;
-    margin-top: 10px;
-}
-
-.transactions-list {
-    margin-top: 30px;
-}
-
-.empty-state {
-    text-align: center;
-    padding: 60px;
-    background: var(--color-surface);
-    border-radius: 12px;
-    color: var(--muted-text);
-    box-shadow: var(--shadow-sm);
-}
-
-.transactions-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-}
-
-.transaction-group {
-    background: var(--color-surface);
-    border-radius: 12px;
-    box-shadow: var(--shadow-sm);
-    overflow: hidden;
-    transition: all 0.3s;
-}
-
-.transaction-group:hover {
-    box-shadow: var(--shadow-md);
-}
-
-.transaction-group.is-linked {
-    border: 2px solid var(--primary-color);
-}
-
-.group-header {
-    padding: 16px 20px;
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--hover-primary-color) 100%);
-    color: white;
-    cursor: pointer;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    transition: background 0.3s;
-}
-
-.group-header:hover {
-    opacity: 0.9;
-}
-
-.group-header-content {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    flex: 1;
-}
-
-.expand-icon {
-    transition: transform 0.3s;
-    color: white;
-}
-
-.expand-icon.expanded {
-    transform: rotate(90deg);
-}
-
-.link-icon {
-    color: white;
-}
-
-.group-title {
-    font-weight: 600;
-    font-size: 15px;
-}
-
-.group-total {
-    margin-left: auto;
-    font-weight: 700;
-    font-size: 16px;
-    padding: 4px 12px;
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 20px;
-}
-
-.group-total.positive {
-    background: var(--success-bg);
-}
-
-.group-total.negative {
-    background: var(--danger-bg);
-}
-
-.unlink-group-btn {
-    margin-left: 16px;
-}
-
-.group-content {
-    max-height: 2000px;
-    overflow: hidden;
-    transition: max-height 0.4s ease-out, opacity 0.3s;
-    opacity: 1;
-}
-
-.group-content.collapsed {
-    max-height: 0;
-    opacity: 0;
-}
-
-.transaction-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px 16px;
-    border-bottom: 1px solid var(--color-border);
-    transition: all 0.2s;
-    gap: 16px;
-    min-height: 50px;
-}
-
-.transaction-row:last-child {
-    border-bottom: none;
-}
-
-.transaction-row:hover {
-    background: var(--hover-bg);
-}
-
-.transaction-row.selected-row {
-    background: var(--link-bg-light);
-    border-left: 3px solid var(--primary-color);
-}
-
-.transaction-row.link-source {
-    background: var(--link-bg);
-    border-left: 3px solid var(--link-color);
-}
-
-.transaction-row.link-active {
-    background: var(--link-bg-light);
-    cursor: pointer;
-}
-
-.transaction-row.child-row {
-    border-left: 2px solid var(--color-border);
-}
-
-.transaction-info {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    flex: 1;
-    min-width: 0;
-}
-
-.transaction-main {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    flex: 1;
-    min-width: 0;
-}
-
-.node-badge {
-    font-size: 11px;
-    font-weight: 600;
-    padding: 3px 8px;
-    border-radius: 999px;
-    white-space: nowrap;
-    background: var(--hover-bg);
-    color: var(--muted-text);
-}
-
-.node-badge.is-parent {
-    background: var(--link-bg-light);
-    color: var(--link-color);
-}
-
-.node-badge.is-child {
-    background: var(--hover-bg);
-    color: var(--muted-text);
-}
-
-.transaction-date-compact {
-    font-size: 12px;
-    color: var(--muted-text);
-    font-weight: 500;
-    white-space: nowrap;
-    min-width: 75px;
-}
-
-.transaction-name-compact {
-    margin: 0;
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--color-text);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    min-width: 120px;
-    max-width: 200px;
-}
-
-.transaction-description-compact {
-    font-size: 13px;
-    color: var(--muted-text);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    flex: 1;
-    max-width: 300px;
-}
-
-.transaction-secondary {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.transaction-category-select {
-    max-width: 170px;
-    padding: 4px 8px;
-    font-size: 12px;
-    border: 1px solid var(--input-border);
-    border-radius: 6px;
-    background: var(--color-surface);
-    color: var(--color-text);
-}
-
-.transaction-status-compact {
-    font-size: 11px;
-    color: var(--muted-text);
-    padding: 3px 8px;
-    background: var(--hover-bg);
-    border-radius: 12px;
-    white-space: nowrap;
-}
-
-.transaction-amount-compact {
-    font-size: 15px;
-    font-weight: 700;
-    padding: 4px 12px;
-    border-radius: 6px;
-    background: var(--hover-bg);
-    white-space: nowrap;
-    min-width: 90px;
-    text-align: right;
-}
-
-.transaction-amount-compact.amount-positive {
-    color: var(--success-color);
-    background: var(--success-bg);
-}
-
-.transaction-amount-compact.amount-negative {
-    color: var(--danger-color);
-    background: var(--danger-bg);
-}
-
-.transaction-actions-compact {
-    display: flex;
-    gap: 6px;
-    flex-wrap: nowrap;
-}
-
-.link-to-btn-compact {
-    padding: 6px 12px;
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--hover-primary-color) 100%);
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 12px;
-    font-weight: 600;
-    transition: all 0.2s;
-    white-space: nowrap;
-}
-
-.link-to-btn-compact:hover {
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-primary);
-}
-
-.link-to-btn-compact:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: none;
-}
-
-.unlink-btn-compact {
-    background: linear-gradient(135deg, var(--danger-color) 0%, var(--danger-color) 100%);
-}
-
-.unlink-btn-compact:hover {
-    box-shadow: var(--shadow-danger);
-}
-
-.delete-popover-overlay {
-    background: color-mix(in srgb, var(--color-text) 24%, transparent);
-}
-
-.delete-popover-card {
-    background: var(--color-surface);
-    color: var(--color-text);
-    border: 1px solid var(--color-border);
-    box-shadow: var(--shadow-md);
-}
-
-.delete-popover-text {
-    color: var(--muted-text);
-}
-
-@media (max-width: 1024px) {
-    .transactions {
-        padding: 16px;
-    }
-
-    .actions-bar {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 12px;
-    }
-
-    .group-controls {
-        flex-wrap: wrap;
-    }
-
-    .total-amount {
-        text-align: right;
-    }
-
-    .filters-bar {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .filter-group {
-        min-width: 0;
-        width: 100%;
-    }
-
-    .transaction-description-compact {
-        max-width: 100%;
-    }
-}
-
-@media (max-width: 768px) {
-    .transactions {
-        padding: 12px;
-    }
-
-    .transactions-header {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .transactions-header :deep(button) {
-        width: 100%;
-    }
-
-    .group-header {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 10px;
-    }
-
-    .group-header-content {
-        flex-wrap: wrap;
-        gap: 8px;
-    }
-
-    .group-total {
-        margin-left: 0;
-    }
-
-    .unlink-group-btn {
-        margin-left: 0;
-        width: 100%;
-    }
-
-    .transaction-row {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 10px;
-        padding: 10px 12px;
-    }
-
-    .transaction-info {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 10px;
-    }
-
-    .transaction-main {
-        flex-wrap: wrap;
-        gap: 8px;
-    }
-
-    .transaction-name-compact,
-    .transaction-description-compact {
-        min-width: 0;
-        max-width: 100%;
-    }
-
-    .transaction-secondary {
-        flex-wrap: wrap;
-        gap: 8px;
-    }
-
-    .transaction-category-select {
-        max-width: none;
-        width: 100%;
-    }
-
-    .transaction-amount-compact {
-        min-width: 0;
-        margin-left: auto;
-    }
-
-    .transaction-actions-compact {
-        width: 100%;
-        justify-content: flex-end;
-    }
-
-    .link-to-btn-compact {
-        width: 100%;
-    }
-}
-
-@media (max-width: 480px) {
-    .transactions-header h1 {
-        font-size: 24px;
-    }
-
-    .actions-bar {
-        padding: 12px;
-    }
-
-    .form-section {
-        padding: 16px;
-    }
-
-    .transaction-form {
-        grid-template-columns: 1fr;
-    }
-
-    .transaction-date-compact {
-        min-width: 0;
-    }
-
-    .transaction-amount-compact {
-        width: 100%;
-        text-align: left;
-    }
-
-    .delete-popover-card {
-        max-width: 100%;
-    }
-}
-</style>
