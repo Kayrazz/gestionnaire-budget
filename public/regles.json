@@ -12,8 +12,8 @@
             "id": 2,
             "categoriesId": 2,
             "description": "Sources de revenus",
-            "transactionNameRegex": ".*(salaire|revenu|gains|rémunération|paiement).*",
-            "transactionDescriptionRegex": ".*(salaire|revenu|gains|rémunération|paiement).*",
+            "transactionNameRegex": ".*(salaire|revenu|gains|rémunération|COMPTOIR).*",
+            "transactionDescriptionRegex": ".*(salaire|revenu|gains|rémunération|COMPTOIR).*",
             "userId": 1
         },
         {
