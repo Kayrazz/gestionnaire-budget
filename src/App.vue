@@ -2,7 +2,8 @@
 import Header from './components/Header.vue';
 import { ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import getCookie from './utils/getCookies';
+import { useUserStore } from './stores/userStore';
+import { onMounted, watch } from 'vue';
 
 const menuOpen = ref(false);
 function toggleMenu() {
@@ -11,37 +12,35 @@ function toggleMenu() {
 
 const route = useRoute();
 const router = useRouter();
+const userStore = useUserStore();
 
 
 function logout() {
-  // Sauvegarder le thème avant de nettoyer le localStorage
-  const THEME_STORAGE_KEY = "budget-manager:theme";
-  const currentTheme = localStorage.getItem(THEME_STORAGE_KEY);
-
-  // Supprimer toutes les données du localStorage
-  localStorage.clear();
-
-  // Restaurer le thème
-  if (currentTheme) {
-    localStorage.setItem(THEME_STORAGE_KEY, currentTheme);
-  }
-
-  document.cookie = 'user_id=; Max-Age=0; path=/;';
+  userStore.logout();
   router.push('/login');
 }
 
-// Redirige vers /login si pas de user_id, sauf si déjà sur /login
-import { onMounted, watch } from 'vue';
-function checkAuth() {
-  const userId = getCookie('user_id');
-  if (!userId && route.path !== '/login') {
+// Redirige vers /login si l'utilisateur n'est pas authentifié, sauf sur /login.
+async function checkAuth() {
+  await userStore.restoreSession();
+
+  if (!userStore.isAuthenticated && route.path !== '/login') {
     router.push('/login');
-  } else if (userId && route.path === '/login') {
+  } else if (userStore.isAuthenticated && route.path === '/login') {
     router.push('/');
   }
 }
-onMounted(checkAuth);
-watch(() => route.path, checkAuth);
+
+onMounted(() => {
+  void checkAuth();
+});
+
+watch(
+  () => route.path,
+  () => {
+    void checkAuth();
+  },
+);
 </script>
 
 

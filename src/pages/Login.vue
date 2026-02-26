@@ -1,45 +1,21 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { categoriesManager, transactionsManager, usersManager } from '../utils/JsonManager';
+import { useUserStore } from '../stores/userStore';
 
 const email = ref<string>('');
 const password = ref<string>('');
 const errorMsg = ref<string>('');
 const router = useRouter();
+const userStore = useUserStore();
 
 async function handleSubmit(e: Event) {
     e.preventDefault();
     errorMsg.value = '';
     try {
-        // Sauvegarder le thème avant de nettoyer le localStorage
-        const THEME_STORAGE_KEY = "budget-manager:theme";
-        const currentTheme = localStorage.getItem(THEME_STORAGE_KEY);
-        
-        // Supprimer toutes les données du localStorage avant la connexion
-        localStorage.clear();
-        
-        // Restaurer le thème
-        if (currentTheme) {
-            localStorage.setItem(THEME_STORAGE_KEY, currentTheme);
-        }
-        
-        // Initialiser sans userId pour charger tous les utilisateurs
-        await usersManager.init();
+        const isAuthenticated = await userStore.login(email.value.trim(), password.value);
 
-        const user = usersManager
-            .getAll()
-            .find((u) => u.email === email.value && u.password === password.value);
-
-        if (user) {
-            // Stocker l'id utilisateur dans un cookie pour la session
-            document.cookie = `user_id=${user.id}; path=/;`;
-            
-            // Réinitialiser et charger les données filtrées par utilisateur
-            await usersManager.init(user.id, true);
-            await categoriesManager.init(user.id, true);
-            await transactionsManager.init(user.id, true);
-            
+        if (isAuthenticated) {
             router.push('/');
         } else {
             errorMsg.value = 'Email ou mot de passe incorrect.';
