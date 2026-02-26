@@ -5,20 +5,23 @@ import * as echarts from 'echarts';
 const chartRef = ref<HTMLDivElement | null>(null);
 let myChart: echarts.ECharts | null = null;
 
+
 function getMonthlyExpenses() {
     const raw = localStorage.getItem('budget-manager:transactions');
-    // Always return an object with months and sums
+    // Détecte mobile (viewport <= 767px)
+    const isMobile = window.matchMedia('(max-width: 767px)').matches;
+    const nbMonths = isMobile ? 6 : 12;
     const now = new Date();
     const months: string[] = [];
-    for (let i = 11; i >= 0; i--) {
+    for (let i = nbMonths - 1; i >= 0; i--) {
         const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
         months.push(d.toLocaleString('fr-FR', { month: 'short', year: '2-digit' }));
     }
-    if (!raw) return { months, sums: Array(12).fill(0) };
+    if (!raw) return { months, sums: Array(nbMonths).fill(0) };
     try {
         const arr = JSON.parse(raw);
         const sums = months.map((_, idx) => {
-            const d = new Date(now.getFullYear(), now.getMonth() - (11 - idx), 1);
+            const d = new Date(now.getFullYear(), now.getMonth() - (nbMonths - 1 - idx), 1);
             const year = d.getFullYear();
             const month = d.getMonth() + 1;
             return arr.filter((t: any) => {
@@ -28,7 +31,7 @@ function getMonthlyExpenses() {
         });
         return { months, sums };
     } catch {
-        return { months, sums: Array(12).fill(0) };
+        return { months, sums: Array(nbMonths).fill(0) };
     }
 }
 
