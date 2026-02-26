@@ -58,7 +58,7 @@ watch(
     <nav :class="[
       'bg-[var(--color-bg)] z-40 text-sm',
       'md:flex md:flex-col md:w-[150px] md:h-screen md:left-0 md:top-0 md:border-r-2 md:border-black',
-      'fixed top-0 left-0 w-full flex flex-col items-start p-2 p-6 gap-2',
+      'fixed top-0 left-0 w-full flex flex-col items-start p-2 gap-2',
       menuOpen ? 'block' : 'hidden',
       'md:block'
     ]">
