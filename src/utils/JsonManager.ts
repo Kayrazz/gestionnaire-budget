@@ -273,6 +273,17 @@ export class JsonManager<TItem extends EntityWithId, TCollectionKey extends stri
             return "email" in maybeUser && "password" in maybeUser && "created_at" in maybeUser;
         };
 
+        // Filtrer les règles par userId
+        const isRule = (item: unknown): item is Rule => {
+            const maybeRule = item as Record<string, unknown>;
+            return (
+                "categoriesId" in maybeRule &&
+                "transactionNameRegex" in maybeRule &&
+                "transactionDescriptionRegex" in maybeRule &&
+                typeof maybeRule.userId === "number"
+            );
+        };
+
         return items.filter((item) => {
             if (isTransaction(item)) {
                 return item.user_id === this.currentUserId;
@@ -282,6 +293,9 @@ export class JsonManager<TItem extends EntityWithId, TCollectionKey extends stri
             }
             if (isUser(item)) {
                 return item.id === this.currentUserId;
+            }
+            if (isRule(item)) {
+                return item.userId === this.currentUserId;
             }
             // Par défaut, ne pas filtrer
             return true;
@@ -305,6 +319,14 @@ export interface Transaction extends EntityWithId {
     status: string;
     link: number[];
     user_id: number;
+}
+
+export interface Rule extends EntityWithId {
+    categoriesId: number;
+    description: string;
+    transactionNameRegex: string;
+    transactionDescriptionRegex: string;
+    userId: number;
 }
 
 export interface User extends EntityWithId {
@@ -334,4 +356,10 @@ export const usersManager = new JsonManager<User, "users">({
     sourcePath: "/user.json",
     collectionKey: "users",
     storageKey: "budget-manager:users",
+});
+
+export const rulesManager = new JsonManager<Rule, "regles">({
+    sourcePath: "/regles.json",
+    collectionKey: "regles",
+    storageKey: "budget-manager:regles",
 });

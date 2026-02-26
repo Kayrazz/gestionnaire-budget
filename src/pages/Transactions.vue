@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
 import getCookie from "../utils/getCookies";
-import type { Category, CurrencyCode, Transaction } from "../utils/JsonManager";
-import { categoriesManager, transactionsManager, usersManager } from "../utils/JsonManager";
+import type { Category, CurrencyCode, Rule, Transaction } from "../utils/JsonManager";
+import { categoriesManager, rulesManager, transactionsManager, usersManager } from "../utils/JsonManager";
 import { parseOfxTransactions } from "../utils/parseOfxTransactions";
+import { doesRuleMatchTransaction, getRuleCategoryIds } from "../utils/ruleMatching";
 import AppButton from "../components/AppButton.vue";
 import AppToast from "../components/AppToast.vue";
 
@@ -81,6 +82,7 @@ const transactions = ref<Transaction[]>([]);
  * Liste des catégories disponibles
  */
 const categories = ref<Category[]>([]);
+const rules = ref<Rule[]>([]);
 
 /**
  * État du formulaire d'ajout/modification
@@ -170,8 +172,10 @@ onMounted(async () => {
 
     await transactionsManager.init(currentUserId.value ?? undefined);
     await categoriesManager.init(currentUserId.value ?? undefined);
+    await rulesManager.init(currentUserId.value ?? undefined);
     transactions.value = transactionsManager.getAll();
     categories.value = categoriesManager.getAll();
+    rules.value = rulesManager.getAll();
 });
 
 /**
@@ -607,6 +611,22 @@ const openOfxFilePicker = (): void => {
     ofxFileInput.value?.click();
 };
 
+const findMatchingRule = (transaction: Pick<Transaction, "nom" | "description">): Rule | null => {
+    const candidateTransaction = {
+        id: 0,
+        date: "",
+        amount: 0,
+        nom: transaction.nom,
+        description: transaction.description,
+        categories: [],
+        status: "",
+        link: [],
+        user_id: currentUserId.value ?? 0,
+    } satisfies Transaction;
+
+    return rules.value.find((rule: Rule) => doesRuleMatchTransaction(rule, candidateTransaction)) ?? null;
+};
+
 const importOfxFile = async (file: File): Promise<void> => {
     const userId = currentUserId.value;
     if (!userId) {
@@ -617,6 +637,9 @@ const importOfxFile = async (file: File): Promise<void> => {
     isImportingOfx.value = true;
 
     try {
+        await rulesManager.init(userId);
+        rules.value = rulesManager.getAll();
+
         const ofxContent = await file.text();
         const parsedTransactions = parseOfxTransactions(ofxContent);
 
@@ -641,6 +664,11 @@ const importOfxFile = async (file: File): Promise<void> => {
             }
 
             const description = descriptionParts.filter(Boolean).join(" • ");
+            const matchedRule = findMatchingRule({
+                nom: parsedTransaction.nom,
+                description,
+            });
+            const assignedCategories = matchedRule ? getRuleCategoryIds(matchedRule) : [];
             const dedupKey = buildTransactionDedupKey({
                 date: parsedTransaction.date,
                 amount: parsedTransaction.amount,
@@ -658,7 +686,7 @@ const importOfxFile = async (file: File): Promise<void> => {
                 amount: parsedTransaction.amount,
                 nom: parsedTransaction.nom,
                 description,
-                categories: [],
+                categories: assignedCategories,
                 status: parsedTransaction.status,
                 link: [],
                 user_id: userId,
