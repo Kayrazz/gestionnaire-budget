@@ -121,43 +121,42 @@ watch(() => selectedDate.value, (newDate) => {
 
 <template>
     <div class="chart">
-        <div class="flex flex-row gap-8">
-            <div>
+        <div class="flex flex-row gap-8 items-center mb-4">
+            <div class="flex flex-col items-center">
                 <label for="category-select" class="mr-2">Catégorie :</label>
-            <select id="category-select" v-model="selectedCategoryId">
-                <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
-            </select>
+                <select id="category-select" v-model="selectedCategoryId">
+                    <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
+                </select>
+            </div>
+
+            <div class="flex flex-col items-center">
+                <label for="date-selector">Période : </label>
+                <select name="date" id="date-selector" v-model="selectedDate" @change="getTransactions(selectedDate)">
+                    <option value="2026-01">Janvier 2026</option>
+                    <option value="2026-02">Février 2026</option>
+                    <option value="2026-03">Mars 2026</option>
+                    <option value="2026-04">Avril 2026</option>
+                    <option value="2026-05">Mai 2026</option>
+                    <option value="2026-06">Juin 2026</option>
+                    <option value="2026-07">Juillet 2026</option>
+                    <option value="2026-08">Août 2026</option>
+                    <option value="2026-09">Septembre 2026</option>
+                    <option value="2026-10">Octobre 2026</option>
+                    <option value="2026-11">Novembre 2026</option>
+                    <option value="2026-12">Décembre 2026</option>
+                </select>
+            </div>
         </div>
 
-        <div>
-            <label for="date-selector">Période : </label>
-            <select name="date" id="date-selector" v-model="selectedDate"
-                @change="getTransactions(selectedDate)">
-                <option value="2026-01">Janvier 2026</option>
-                <option value="2026-02">Février 2026</option>
-                <option value="2026-03">Mars 2026</option>
-                <option value="2026-04">Avril 2026</option>
-                <option value="2026-05">Mai 2026</option>
-                <option value="2026-06">Juin 2026</option>
-                <option value="2026-07">Juillet 2026</option>
-                <option value="2026-08">Août 2026</option>
-                <option value="2026-09">Septembre 2026</option>
-                <option value="2026-10">Octobre 2026</option>
-                <option value="2026-11">Novembre 2026</option>
-                <option value="2026-12">Décembre 2026</option>
-            </select>
+        <div class="flex flex-row relative">
+            <div ref="chartRef" class="w-full h-full"></div>
+            <div v-if="selectedCategoryId && getCategoryBudgetLeft()"
+                class="mt-4 text-center flex flex-col justify-center absolute md:top-5 top-7 right-5 md:text-base text-xs">
+                <p>Budget initial : <b>{{ getCategoryBudgetLeft()?.budget }} €</b></p>
+                <p>Dépensé : <b>{{ getCategoryBudgetLeft()?.spent }} €</b></p>
+                <p>Disponible : <b>{{ getCategoryBudgetLeft()?.left }} €</b></p>
+            </div>
         </div>
-    </div>
-
-    <div class="flex flex-row relative">
-        <div ref="chartRef" class="w-full h-full"></div>
-        <div v-if="selectedCategoryId && getCategoryBudgetLeft()"
-            class="mt-4 text-center flex flex-col justify-center absolute top-5 right-5">
-            <p>Budget initial : <b>{{ getCategoryBudgetLeft()?.budget }} €</b></p>
-            <p>Dépensé : <b>{{ getCategoryBudgetLeft()?.spent }} €</b></p>
-            <p>Disponible : <b>{{ getCategoryBudgetLeft()?.left }} €</b></p>
-        </div>
-    </div>
     </div>
 </template>
 

@@ -50,7 +50,7 @@ watch(() => route.path, checkAuth);
   <template v-if="route.path !== '/login'">
     <!-- Sidebar (header) -->
     <!-- Burger button for mobile -->
-    <button class="md:hidden fixed top-4 left-4 z-50 p-2 rounded bg-[var(--color-bg)] focus:outline-none"
+    <button class="md:hidden fixed top-7 left-10 z-51 p-2 rounded bg-[var(--color-bg)] focus:outline-none"
       @click="toggleMenu" aria-label="Ouvrir le menu">
       <span class="block w-6 h-0.5 bg-[var(--color-text)] mb-1"></span>
       <span class="block w-6 h-0.5 bg-[var(--color-text)] mb-1"></span>
@@ -59,7 +59,7 @@ watch(() => route.path, checkAuth);
     <nav :class="[
       'bg-[var(--color-bg)] z-40 text-sm',
       'md:flex md:flex-col md:w-[150px] md:h-screen md:left-0 md:top-0 md:border-r-2 md:border-black',
-      'fixed top-0 left-0 w-full flex flex-col items-start p-2 gap-2',
+      'fixed top-0 left-0 w-full flex flex-col items-start p-2 p-6 gap-2',
       menuOpen ? 'block' : 'hidden',
       'md:block'
     ]">
@@ -72,7 +72,7 @@ watch(() => route.path, checkAuth);
       <button type="button" class="link w-full text-left cursor-pointer" @click="logout">Se déconnecter</button>
     </nav>
     <!-- Main content -->
-    <main class="p-4">
+    <main class="px-4 pb-4 pt-22 relative">
       <Header />
       <RouterView />
     </main>
@@ -101,7 +101,7 @@ watch(() => route.path, checkAuth);
     background: var(--color-bg);
     flex-direction: column;
     align-items: flex-start;
-    padding-top: 60px;
+    padding-top: 80px;
     gap: 0.5rem;
   }
 }

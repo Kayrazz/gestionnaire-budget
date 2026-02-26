@@ -150,15 +150,31 @@ body {
   @apply min-w-[600px] w-full min-h-[600px] h-full;
 }
 
+@media (max-width: 767px) {
+  .chart>div:nth-child(2) {
+    @apply border-0 border-[var(--color-border)] bg-[var(--color-bg)] rounded-xl min-w-[300px] w-full min-h-[300px] h-full p-2
+  }
+
+  .chart>div:nth-child(2)>div:first-child {
+    @apply min-w-[300px] w-full min-h-[300px] h-full;
+  }
+}
+
 .chart:has(> div:nth-child(2)):has(> div:nth-child(3))>div:nth-child(3) {
   background-color: red;
 }
 
 #app {
   display: grid;
-  grid-template-columns: 150px 1fr;
+  grid-template-columns: 1fr;
   grid-template-rows: 100vh;
   height: 100vh;
+}
+
+@media (min-width: 768px) {
+  #app {
+    grid-template-columns: 150px 1fr;
+  }
 }
 
 #app .login {
@@ -170,10 +186,10 @@ body {
   grid-column: 1 / 2;
   grid-row: 1 / 2;
   height: 100vh;
-  position: sticky;
+  position: fixed;
   top: 0;
   left: 0;
-  z-index: 10;
+  z-index: 50;
 }
 
 #app main {
@@ -181,4 +197,18 @@ body {
   grid-row: 1 / 2;
   height: 100vh;
   overflow-y: auto;
+}
+
+header {
+  left: calc(50% + 75px);
+  transform: translateX(-50%);
+  width: 80%;
+}
+
+@media (max-width: 767px) {
+  header {
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+  }
 }
