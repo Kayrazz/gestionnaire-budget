@@ -35,7 +35,7 @@ const buttonClass = computed<string>(() => {
 
     const sizeClass = props.size === "sm" ? "px-3 py-1 text-sm" : "px-4 py-2";
 
-    return `rounded border ${variantClass} ${sizeClass} disabled:opacity-50 disabled:cursor-not-allowed transition-colors`;
+    return `rounded border ${variantClass} ${sizeClass} cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed transition-colors`;
 });
 </script>
 
