@@ -67,6 +67,7 @@ watch(
       </RouterLink>
       <RouterLink to="/categories" class="link mb-2 md:mb-0 w-full" @click="menuOpen = false">Catégories
       </RouterLink>
+      <RouterLink to="/regles" class="link mb-2 md:mb-0 w-full" @click="menuOpen = false">Règles</RouterLink>
       <RouterLink to="/profile" class="link w-full" @click="menuOpen = false">Profil</RouterLink>
       <button type="button" class="link w-full text-left cursor-pointer" @click="logout">Se déconnecter</button>
     </nav>

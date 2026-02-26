@@ -1,0 +1,28 @@
+{
+    "regles": [
+        {
+            "id": 1,
+            "categoriesId": 1,
+            "description": "Dépenses liées à l'alimentation",
+            "transactionNameRegex": ".*(supermarché|restaurant|café|nourriture|épicerie).*",
+            "transactionDescriptionRegex": ".*(supermarché|restaurant|café|nourriture|épicerie).*",
+            "userId": 1
+        },
+        {
+            "id": 2,
+            "categoriesId": 2,
+            "description": "Sources de revenus",
+            "transactionNameRegex": ".*(salaire|revenu|gains|rémunération|paiement).*",
+            "transactionDescriptionRegex": ".*(salaire|revenu|gains|rémunération|paiement).*",
+            "userId": 1
+        },
+        {
+            "id": 3,
+            "categoriesId": 3,
+            "description": "Dépenses liées au transport",
+            "transactionNameRegex": ".*(transport|essence|carburant|taxi|bus|train|avion|PETRO).*",
+            "transactionDescriptionRegex": ".*(transport|essence|carburant|taxi|bus|train|avion|PETRO).*",
+            "userId": 1
+        }
+    ]
+}
