@@ -1,26 +1,15 @@
-# Page login
-Page login
+## Installation
 
-# Page Accueil
-Head avec montant pouvoir caché la somme via icone oeil
-Graphique des dépenses par catégorie
-Résumé des dépenses du mois en cours
-Liste des transactions récentes
+```bash
+pnpm install
+```
 
+## Lancer en développement
 
-# Page de transaction
-Liste des transactions avec possibilité de filtrer par date, montant, etc. 
-Bouton pour ajouter une nouvelle transaction. 
-Btn pour importer une transaction existante.
-Pourvoir catégoriser les transactions (ex: alimentation, transport, etc.)
-Pouvoir liée une transaction à une autre transaction (ex: remboursement d'une dépense)
+```bash
+pnpm dev
+```
 
-
-# Page catégories
-Liste des catégories de dépenses. Possibilité d'ajouter, modifier ou supprimer des catégories.
-Afficher des statistiques basées sur ces catégories.
-
-# Page de profil
-Mettre en dark mode : thème
-Afficher les informations de l'utilisateur (nom, email, etc.)
-Possibilité de modifier les informations de l'utilisateur
+## Étudiants
+- Valentin CHIGOT => Kayrazz
+- Cantin CHAMPY => Herra51
