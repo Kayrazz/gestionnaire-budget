@@ -77,7 +77,7 @@ watch(
       <RouterView />
     </main>
   </template>
-  
+
   <template v-else>
     <RouterView />
   </template>
@@ -88,7 +88,7 @@ watch(
 @import "tailwindcss";
 
 .link {
-  @apply px-4 p-2 rounded transition-colors block hover:text-[var(--color-text-hover)] hover:bg-[var(--primary-color)];
+  @apply px-4 p-2 rounded transition-colors block hover:text-[var(--color-text-nav)] hover:bg-[var(--primary-color)];
 }
 
 @media (max-width: 767px) {
